@@ -1,0 +1,194 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "../lib/forge-std/src/Test.sol";
+import "../lib/forge-std/src/console.sol";
+import "../src/HotelRooms.sol";
+import "../src/UtilsDate.sol";
+
+contract HotelRoomsTest is Test {
+    HotelRooms public hotelRooms;
+    address public owner;
+    address public user1;
+    address public user2;
+
+    function setUp() public {
+        owner = address(this);
+        user1 = makeAddr("user1");
+        user2 = makeAddr("user2");
+
+        hotelRooms = new HotelRooms();
+
+        // Fund test users
+        vm.deal(user1, 10 ether);
+        vm.deal(user2, 10 ether);
+    }
+
+    function testDateToTimestamp() public pure {
+        uint256 timestamp = UtilsDate.timestampFromDate(2024, 1, 1);
+        assertEq(timestamp, 1704067200);
+    }
+
+    function testTimestampToDate() public pure { 
+        uint256 timestamp = 1704067200;
+        (uint256 year, uint256 month, uint256 day) = UtilsDate.timestampToDate(timestamp);
+        assertEq(year, 2024, "Year is not correct");
+        assertEq(month, 1, "Month is not correct");
+        assertEq(day, 1, "Day is not correct");
+    }
+
+    function testMintSpecificDay() public {
+        // Convert 25/02/2025 to timestamp
+        uint256 specificDate = UtilsDate.timestampFromDate(2025, 2, 25);
+        uint256 roomId = 1;
+        uint256 pricePerNight = 0.1 ether;
+
+        
+        console.log(uint256(keccak256(abi.encodePacked(roomId, specificDate))));
+        // Verify the token was minted correctly
+        
+        
+       
+    }
+
+
+    function testMintRoomDays() public {
+        uint256 startDate = block.timestamp + 1 days;
+        uint256 endDate = block.timestamp + 365 days;
+        uint256 pricePerNight = 0.1 ether;
+
+        vm.startPrank(user1);
+        hotelRooms = new HotelRooms();
+        for (uint256 roomId = 1; roomId <= 100; roomId++) {
+            hotelRooms.mintRoomDays(
+                roomId,
+                startDate,
+                endDate,
+                HotelRooms.RoomType.STANDARD,
+                pricePerNight
+            );
+        }
+        console.log("totalRoomDays", hotelRooms.totalRoomDays());
+        vm.stopPrank();
+
+        uint256 tokenId = hotelRooms.getRoomDayToken(1, startDate);
+        (uint256 returnedRoomId, uint256 returnedDate) = hotelRooms.getRoomDay(
+            tokenId
+        );
+
+        assertEq(returnedRoomId, 1);
+        assertEq(returnedDate, startDate);
+    }
+
+    function testPagination() public {
+        uint256 offset = 0;
+        uint256 limit = 36000;
+        uint256 startDate = block.timestamp + 1 days;
+        uint256 endDate = block.timestamp + 365 days;
+        uint256 pricePerNight = 0.1 ether;
+        vm.startPrank(user1);
+        hotelRooms = new HotelRooms();
+        for (uint256 roomId = 1; roomId <= 100; roomId++) {
+            hotelRooms.mintRoomDays(roomId, startDate, endDate, HotelRooms.RoomType.STANDARD, pricePerNight);
+        }
+        HotelRooms.RoomDay[] memory roomDays = hotelRooms.getAllRoomDays(offset, limit);
+        vm.stopPrank();
+        console.log("roomDays", roomDays.length);
+      
+        assertEq(roomDays.length, limit);
+    }
+
+    function testTransferRoomDay() public {
+        uint256 roomId = 1;
+        uint256 date = block.timestamp + 1 days;
+        uint256 pricePerNight = 0.1 ether;
+
+        // First mint
+        vm.startPrank(user1);
+        hotelRooms = new HotelRooms();
+        hotelRooms.mintRoomDays(
+            roomId,
+            date,
+            date,
+            HotelRooms.RoomType.STANDARD,
+            pricePerNight
+        );
+        vm.stopPrank();
+
+        uint256 tokenId = hotelRooms.getRoomDayToken(roomId, date);
+
+        // Then transfer
+        vm.prank(user2);
+        hotelRooms.transferRoomDay{value: pricePerNight}(tokenId);
+
+        assertEq(hotelRooms.ownerOf(tokenId), user2);
+        // assertEq(uint256(hotelRooms.isRoomBooked(roomId, date)), uint256(HotelRooms.RoomStatus.BOOKED));
+    }
+
+    function testWithdrawFunds() public {
+        uint256 roomId = 1;
+
+
+        uint256 date = block.timestamp;
+        console.log("date", date);
+        console.log("date year", date / 365 days + 1970);
+        console.log("date month", (date % 365 days) / 30 days + 1); 
+        console.log("date day", (date % 30 days) / 1 days + 1);
+        uint256 pricePerNight = 0.1 ether;
+
+        // Mint and transfer to generate funds
+        vm.startPrank(user1);
+        hotelRooms = new HotelRooms();
+        hotelRooms.mintRoomDays(
+            roomId,
+            date,
+            date,
+            HotelRooms.RoomType.STANDARD,
+            pricePerNight
+        );
+
+        vm.startPrank(user2);
+        uint256 tokenId = hotelRooms.getRoomDayToken(roomId, date);
+        hotelRooms.transferRoomDay{value: pricePerNight}(tokenId);
+        vm.startPrank(user1);
+        hotelRooms.withdrawFunds();
+        vm.stopPrank();
+
+        assertEq(
+            address(user1).balance - 10 ether,
+            pricePerNight,
+            "Withdrawal amount incorrect"
+        );
+    }
+
+
+
+    function testSetPricePerNight() public {
+        uint256 roomId = 1;
+        uint256 date = block.timestamp + 1 days;
+        uint256 newPrice = 0.2 ether;
+
+        vm.startPrank(user1);
+        hotelRooms = new HotelRooms();
+        hotelRooms.mintRoomDays(
+            roomId,
+            date,
+            date,
+            HotelRooms.RoomType.STANDARD,
+            0.1 ether
+        );
+
+        hotelRooms.setPricePerNight(roomId, date, newPrice);
+
+        uint256 tokenId = hotelRooms.getRoomDayToken(roomId, date);
+        (uint256 returnedRoomId, uint256 returnedDate) = hotelRooms.getRoomDay(
+            tokenId
+        );
+        vm.stopPrank();
+
+        assertEq(returnedRoomId, roomId);
+        assertEq(returnedDate, date);
+    }
+
+    receive() external payable {}
+}
