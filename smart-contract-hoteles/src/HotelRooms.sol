@@ -65,7 +65,7 @@ contract HotelRooms is ERC721, Ownable {
         _owner = msg.sender;
     }
 
-    function _createTokenId(
+        function _createTokenId(
         uint256 roomId,
         uint256 date
     ) internal pure returns (uint256) {
@@ -242,8 +242,7 @@ contract HotelRooms is ERC721, Ownable {
                 (day == 0 || allRoomDays[i].day == day)
             ) {
                 result[index++] = allRoomDays[i];
-                console.log("result", result[index-1].owner);
-            }
+                }
 
         }
         // Create a new array with the exact size needed
@@ -259,11 +258,12 @@ contract HotelRooms is ERC721, Ownable {
         require(_roomDays[tokenId].roomId != 0, "Room day not found");
         RoomDay memory roomDay = _roomDays[tokenId];
         require(roomDay.status == RoomStatus.BOOKED, "Room is not booked");
-        require(roomDay.date < block.timestamp, "Room is not expired");
         require(roomDay.owner == msg.sender, "You are not the owner of this room");
         _roomDays[tokenId].status = RoomStatus.USED;
         _acumulateTotal(roomDay.date, roomDay.roomType, RoomStatus.USED);
+        _transfer(msg.sender, _owner, tokenId);
     }
+
     function getRoomDayToken(
         uint256 roomId,
         uint256 date

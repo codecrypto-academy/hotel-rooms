@@ -120,16 +120,42 @@ contract HotelRoomsTest is Test {
                 pricePerNight
             );
         }
-        
-        HotelRooms.RoomDay[] memory retorno = 
-        hotelRooms.getRoomDayFilter(address(user1), HotelRooms.RoomStatus.ALL, HotelRooms.RoomType.ALL, 0, 0, 0);
+
+        HotelRooms.RoomDay[] memory retorno = hotelRooms.getRoomDayFilter(
+            address(user1),
+            HotelRooms.RoomStatus.ALL,
+            HotelRooms.RoomType.ALL,
+            0,
+            0,
+            0
+        );
         for (uint256 i = 0; i < retorno.length; i++) {
             console2.log("retorno", retorno[i].owner);
         }
 
-     
         vm.stopPrank();
         assertEq(retorno.length, 0);
+    }
+
+    function testCheckin() public {
+        uint256 startDate = block.timestamp + 1 days;
+        uint256 endDate = block.timestamp + 2 days;
+        uint256 pricePerNight = 0.1 ether;
+        vm.startPrank(user1);
+        hotelRooms = new HotelRooms();
+        hotelRooms.mintRoomDays(
+            1,
+            startDate,
+            endDate,
+            HotelRooms.RoomType.STANDARD,
+            pricePerNight
+        );
+        uint256 tokenId = hotelRooms.getRoomDayToken(1, startDate);
+        vm.stopPrank();
+        vm.startPrank(user2);
+        hotelRooms.transferRoomDay{value: pricePerNight}(tokenId);
+        hotelRooms.setToUsed(tokenId);
+        vm.stopPrank();
     }
 
     function testPagination() public {
