@@ -22,6 +22,18 @@ export default function DashboardLayout({
             >
               Comprar
             </Link>
+            <Link 
+              href="/dashboard/rooms" 
+              className="px-4 py-2 hover:bg-gray-700 rounded-md transition-colors"
+            >
+              Habitaciones
+            </Link>
+            <Link 
+              href="/dashboard/resumen" 
+              className="px-4 py-2 hover:bg-gray-700 rounded-md transition-colors"
+            >
+              Resumen
+            </Link>
           </div>
         </div>
       </nav>

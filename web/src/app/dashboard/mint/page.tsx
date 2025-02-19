@@ -25,11 +25,12 @@ export default function MintPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!provider || !account) return;
-    const balance = await provider.getBalance(account);
-    console.log(balance);
+    //const balance = await provider.getBalance(account);
+    //console.log(balance);
     try {
       const signer = await provider.getSigner();
       const contractAddress = await getContractAddress();
+      console.log("direccion del contrato",contractAddress);
       const abi = await getContractABI();
       const contract = new ethers.Contract(contractAddress, abi, signer);
 

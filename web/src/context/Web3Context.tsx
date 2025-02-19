@@ -5,7 +5,7 @@ import { ethers } from 'ethers';
 
 interface Web3ContextType {
   account: string | null;
-  provider: ethers.providers.Web3Provider | null;
+  provider: ethers.BrowserProvider | null;
   connect: () => Promise<void>;
   isConnected: boolean;
 }

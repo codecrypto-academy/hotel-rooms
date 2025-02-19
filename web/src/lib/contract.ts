@@ -9,5 +9,7 @@ export async function getContractABI() {
 }
 
 export async function getContractAddress() {
-  return contractAddress.address;
+  console.log("contractAddress", contractAddress);
+  return contractAddress;
 }
+

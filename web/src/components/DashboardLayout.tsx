@@ -18,6 +18,11 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 Comprar Habitación
               </Link>
             </li>
+            <li>
+              <Link href="/dashboard/resume" className="text-blue-600 hover:text-blue-800">
+                Resumen de Habitaciones
+              </Link>
+            </li>
           </ul>
         </nav>
         {children}

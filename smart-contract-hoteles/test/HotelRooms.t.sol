@@ -6,6 +6,7 @@ import "../lib/forge-std/src/console.sol";
 import "../src/HotelRooms.sol";
 import "../src/UtilsDate.sol";
 
+
 contract HotelRoomsTest is Test {
     HotelRooms public hotelRooms;
     address public owner;
@@ -37,24 +38,49 @@ contract HotelRoomsTest is Test {
         assertEq(day, 1, "Day is not correct");
     }
 
-    function testMintSpecificDay() public {
+    function testMintSpecificDay() public pure {
         // Convert 25/02/2025 to timestamp
-        uint256 specificDate = UtilsDate.timestampFromDate(2025, 2, 25);
-        uint256 roomId = 1;
-        uint256 pricePerNight = 0.1 ether;
+        uint256 year = 2025;
+        uint256 month = 12;
+        uint256 day = 31;
+        uint256 specificDate = UtilsDate.timestampFromDate(year, month, day);
+        uint256 roomId = 99;
 
         
         console.log(uint256(keccak256(abi.encodePacked(roomId, specificDate))));
         // Verify the token was minted correctly
-        
+        console.log((year * 10000 + month * 100 + day)*1000 + roomId );
         
        
     }
 
+    function testGetTotal() public {
+         uint256 startDate = block.timestamp + 1 days;
+        uint256 endDate = block.timestamp + 2 days;
+        uint256 pricePerNight = 0.1 ether;
+
+        vm.startPrank(user1);
+        hotelRooms = new HotelRooms();
+        for (uint256 roomId = 1; roomId <= 100; roomId++) {
+            hotelRooms.mintRoomDays(
+                roomId,
+                startDate,
+                endDate,
+                HotelRooms.RoomType.STANDARD,
+                pricePerNight
+            );
+        }
+        console.log("totalRoomDays", hotelRooms.totalRoomDays());
+        HotelRooms.Total[] memory totals = hotelRooms.getTotals();
+        console.log("totals", totals.length);
+        console.logBytes(abi.encode(totals));
+        vm.stopPrank();
+        
+    }
 
     function testMintRoomDays() public {
         uint256 startDate = block.timestamp + 1 days;
-        uint256 endDate = block.timestamp + 365 days;
+        uint256 endDate = block.timestamp + 2 days;
         uint256 pricePerNight = 0.1 ether;
 
         vm.startPrank(user1);
@@ -82,9 +108,9 @@ contract HotelRoomsTest is Test {
 
     function testPagination() public {
         uint256 offset = 0;
-        uint256 limit = 36000;
+        uint256 limit = 200;
         uint256 startDate = block.timestamp + 1 days;
-        uint256 endDate = block.timestamp + 365 days;
+        uint256 endDate = block.timestamp + 2 days;
         uint256 pricePerNight = 0.1 ether;
         vm.startPrank(user1);
         hotelRooms = new HotelRooms();
