@@ -4,23 +4,23 @@ import { useWeb3 } from '@/context/Web3Context'
 import { ethers } from 'ethers'
 import { getContractABI } from '@/lib/contract'
 import { getContractAddress } from '@/lib/contract'
-
+import { useRouter } from 'next/navigation'
 export default function ComprarPage() {
   const [roomId, setRoomId] = useState('')
   const [date, setDate] = useState('')
   const [loading, setLoading] = useState(false)
   const { provider, account } = useWeb3();
-
+  const router = useRouter();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     console.log(provider, account);
-    if (!provider || !account) return
+        if (!provider || !account) {
+          router.push('/')
+          return
+    }
    
     try {
       setLoading(true)
-      console.log(roomId, date);
-      // Convertir la fecha a timestamp (segundos desde epoch)
-      const dateTimestamp = Math.floor(new Date(date).getTime() / 1000)
       
       const signer = await provider.getSigner();
 
@@ -29,12 +29,16 @@ export default function ComprarPage() {
       const abi = await getContractABI();
       const contract = new ethers.Contract(contractAddress, abi, signer);
 
-      // Obtener el token ID para esa habitación y fecha
-      const tokenId = await contract.getRoomDayToken(roomId, dateTimestamp)
+    
+      const dateObj = new Date(date);
+      const year = dateObj.getFullYear();
+      const month = dateObj.getMonth() + 1; 
+      const day = dateObj.getDate();
       
-      // Obtener el precio de la habitación
-     //  const price = await contract.roomPrices(roomId)
-      
+      // Get token ID using year, month, day format
+      const tokenId = (year * 10000 + month * 100 + day)*1000 + Number(roomId)    ;
+                     
+      console.log("Calculated tokenId:", tokenId);
       // Realizar la transferencia del token
       const tx = await contract.transferRoomDay(tokenId, {
         value: ethers.parseEther('12')

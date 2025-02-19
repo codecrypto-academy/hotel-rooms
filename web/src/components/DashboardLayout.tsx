@@ -8,6 +8,11 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       <div className="container mx-auto p-4">
         <nav className="mb-8">
           <ul className="flex space-x-4">
+          <li>
+              <Link href="/dashboard/mistokens" className="text-blue-600 hover:text-blue-800">
+                Mis Tokens
+              </Link>
+            </li>
             <li>
               <Link href="/dashboard/mint" className="text-blue-600 hover:text-blue-800">
                 Mintear Habitación
@@ -23,6 +28,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 Resumen de Habitaciones
               </Link>
             </li>
+            
           </ul>
         </nav>
         {children}

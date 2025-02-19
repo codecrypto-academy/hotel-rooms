@@ -4,7 +4,7 @@ import { useWeb3 } from "@/context/Web3Context";
 import { Button } from "@/components/ui/button";
 import { ethers } from "ethers";
 import { getContractABI, getContractAddress } from "@/lib/contract";
-
+import { useRouter } from "next/navigation";
 enum RoomType {
   STANDARD,
   DELUXE,
@@ -13,6 +13,7 @@ enum RoomType {
 
 export default function MintPage() {
   const { provider, account } = useWeb3();
+  const router = useRouter();
   const [formData, setFormData] = useState({
     startDate: "",
     endDate: "",
@@ -24,7 +25,10 @@ export default function MintPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!provider || !account) return;
+    if (!provider || !account) {
+      router.push('/')
+      return
+    }
     //const balance = await provider.getBalance(account);
     //console.log(balance);
     try {

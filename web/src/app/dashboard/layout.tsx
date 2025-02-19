@@ -34,6 +34,19 @@ export default function DashboardLayout({
             >
               Resumen
             </Link>
+            <Link 
+              href="/dashboard/mistokens" 
+              className="px-4 py-2 hover:bg-gray-700 rounded-md transition-colors"
+            >
+              Mis  Tokens
+            </Link>
+
+            <Link 
+              href="/dashboard/checkin" 
+              className="px-4 py-2 hover:bg-gray-700 rounded-md transition-colors"
+            >
+              Check-in
+            </Link>
           </div>
         </div>
       </nav>

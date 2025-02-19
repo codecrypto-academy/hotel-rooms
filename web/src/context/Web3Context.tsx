@@ -31,6 +31,28 @@ export function Web3Provider({ children }: { children: ReactNode }) {
     }
   };
 
+
+  const disconnect = () => {
+    setAccount(null);
+    setProvider(null);
+  }
+  useEffect(() => {
+    const savedAccount = localStorage.getItem('web3Account');
+    if (savedAccount && window.ethereum) {
+      const provider = new ethers.BrowserProvider(window.ethereum as any);
+      setProvider(provider);
+      setAccount(savedAccount);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (account) {
+      localStorage.setItem('web3Account', account);
+    } else {
+      localStorage.removeItem('web3Account');
+    }
+  }, [account]);
+
   useEffect(() => {
     if (window.ethereum) {
       window.ethereum.on('accountsChanged', (accounts: string[]) => {

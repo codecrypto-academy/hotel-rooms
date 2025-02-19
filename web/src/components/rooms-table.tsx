@@ -21,7 +21,7 @@ import { getContractAddress, getContractABI } from "@/lib/contract";
 import { formatDate } from "@/lib/utils";
 import { useWeb3 } from "@/context/Web3Context";
 import { ethers } from "ethers";
-
+import { useRouter } from "next/navigation";
 interface RoomDay {
   roomId: bigint;
   date: bigint;
@@ -39,21 +39,22 @@ export function RoomsTable() {
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const { provider, account } = useWeb3();
-
+  const router = useRouter();
   const getRoomTypeString = (type: number) => {
     const types = [ "STANDARD", "DELUXE", "SUITE"];
     return types[type];
   };
 
   const getRoomStatusString = (status: number) => {
-    const statuses = ["ALL", "AVAILABLE", "BOOKED", "MAINTENANCE", "USED"];
+    const statuses = [ "AVAILABLE", "BOOKED", "MAINTENANCE", "USED", "ALL"];
     return statuses[status];
   };
 
   useEffect(() => {
     const fetchRoomDays = async () => {
       if (!provider || !account) {
-        throw new Error("Provider or account not found");
+        router.push('/')
+        return
       }
 
       try {
