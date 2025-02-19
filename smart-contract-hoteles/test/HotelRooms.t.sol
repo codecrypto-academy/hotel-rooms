@@ -3,9 +3,9 @@ pragma solidity ^0.8.20;
 
 import "../lib/forge-std/src/Test.sol";
 import "../lib/forge-std/src/console.sol";
+import "../lib/forge-std/src/console2.sol";
 import "../src/HotelRooms.sol";
 import "../src/UtilsDate.sol";
-
 
 contract HotelRoomsTest is Test {
     HotelRooms public hotelRooms;
@@ -30,9 +30,11 @@ contract HotelRoomsTest is Test {
         assertEq(timestamp, 1704067200);
     }
 
-    function testTimestampToDate() public pure { 
+    function testTimestampToDate() public pure {
         uint256 timestamp = 1704067200;
-        (uint256 year, uint256 month, uint256 day) = UtilsDate.timestampToDate(timestamp);
+        (uint256 year, uint256 month, uint256 day) = UtilsDate.timestampToDate(
+            timestamp
+        );
         assertEq(year, 2024, "Year is not correct");
         assertEq(month, 1, "Month is not correct");
         assertEq(day, 1, "Day is not correct");
@@ -46,16 +48,13 @@ contract HotelRoomsTest is Test {
         uint256 specificDate = UtilsDate.timestampFromDate(year, month, day);
         uint256 roomId = 99;
 
-        
         console.log(uint256(keccak256(abi.encodePacked(roomId, specificDate))));
         // Verify the token was minted correctly
-        console.log((year * 10000 + month * 100 + day)*1000 + roomId );
-        
-       
+        console.log((year * 10000 + month * 100 + day) * 1000 + roomId);
     }
 
     function testGetTotal() public {
-         uint256 startDate = block.timestamp + 1 days;
+        uint256 startDate = block.timestamp + 1 days;
         uint256 endDate = block.timestamp + 2 days;
         uint256 pricePerNight = 0.1 ether;
 
@@ -75,7 +74,6 @@ contract HotelRoomsTest is Test {
         console.log("totals", totals.length);
         console.logBytes(abi.encode(totals));
         vm.stopPrank();
-        
     }
 
     function testMintRoomDays() public {
@@ -106,6 +104,34 @@ contract HotelRoomsTest is Test {
         assertEq(returnedDate, startDate);
     }
 
+    function testGetRoomDayFilter() public {
+        uint256 startDate = block.timestamp + 1 days;
+        uint256 endDate = block.timestamp + 2 days;
+        uint256 pricePerNight = 0.1 ether;
+
+        vm.startPrank(user1);
+        hotelRooms = new HotelRooms();
+        for (uint256 roomId = 1; roomId <= 10; roomId++) {
+            hotelRooms.mintRoomDays(
+                roomId,
+                startDate,
+                endDate,
+                HotelRooms.RoomType.STANDARD,
+                pricePerNight
+            );
+        }
+        
+        HotelRooms.RoomDay[] memory retorno = 
+        hotelRooms.getRoomDayFilter(address(user1), HotelRooms.RoomStatus.ALL, HotelRooms.RoomType.ALL, 0, 0, 0);
+        for (uint256 i = 0; i < retorno.length; i++) {
+            console2.log("retorno", retorno[i].owner);
+        }
+
+     
+        vm.stopPrank();
+        assertEq(retorno.length, 0);
+    }
+
     function testPagination() public {
         uint256 offset = 0;
         uint256 limit = 200;
@@ -115,12 +141,21 @@ contract HotelRoomsTest is Test {
         vm.startPrank(user1);
         hotelRooms = new HotelRooms();
         for (uint256 roomId = 1; roomId <= 100; roomId++) {
-            hotelRooms.mintRoomDays(roomId, startDate, endDate, HotelRooms.RoomType.STANDARD, pricePerNight);
+            hotelRooms.mintRoomDays(
+                roomId,
+                startDate,
+                endDate,
+                HotelRooms.RoomType.STANDARD,
+                pricePerNight
+            );
         }
-        HotelRooms.RoomDay[] memory roomDays = hotelRooms.getAllRoomDays(offset, limit);
+        HotelRooms.RoomDay[] memory roomDays = hotelRooms.getAllRoomDays(
+            offset,
+            limit
+        );
         vm.stopPrank();
         console.log("roomDays", roomDays.length);
-      
+
         assertEq(roomDays.length, limit);
     }
 
@@ -154,11 +189,10 @@ contract HotelRoomsTest is Test {
     function testWithdrawFunds() public {
         uint256 roomId = 1;
 
-
         uint256 date = block.timestamp;
         console.log("date", date);
         console.log("date year", date / 365 days + 1970);
-        console.log("date month", (date % 365 days) / 30 days + 1); 
+        console.log("date month", (date % 365 days) / 30 days + 1);
         console.log("date day", (date % 30 days) / 1 days + 1);
         uint256 pricePerNight = 0.1 ether;
 
@@ -186,8 +220,6 @@ contract HotelRoomsTest is Test {
             "Withdrawal amount incorrect"
         );
     }
-
-
 
     function testSetPricePerNight() public {
         uint256 roomId = 1;

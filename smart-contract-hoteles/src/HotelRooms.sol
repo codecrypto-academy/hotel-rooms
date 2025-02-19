@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./UtilsDate.sol";
+import "../lib/forge-std/src/console.sol";
 
 contract HotelRooms is ERC721, Ownable {
     uint256 public constant TOTAL_ROOMS = 100;
@@ -41,6 +42,9 @@ contract HotelRooms is ERC721, Ownable {
     struct RoomDay {
         uint256 roomId;
         uint256 date;
+        uint256 year;
+        uint256 month;
+        uint256 day;
         RoomType roomType;
         uint256 pricePerNight;
         RoomStatus status;
@@ -137,7 +141,7 @@ contract HotelRooms is ERC721, Ownable {
         require(roomId > 0 && roomId <= TOTAL_ROOMS, "Invalid room number");
         require(startDate <= endDate, "Invalid date range");
         require(startDate >= block.timestamp, "Cannot book past dates");
-
+        
         for (uint256 date = startDate; date <= endDate; date += 1 days) {
             uint256 tokenId = _createTokenId(roomId, date);
             require(
@@ -145,9 +149,15 @@ contract HotelRooms is ERC721, Ownable {
                 "Room already booked for this date"
             );
             totalRoomDays++;
+            (uint256 year, uint256 month, uint256 day) = UtilsDate.timestampToDate(
+                date
+            );
             RoomDay memory tmp = RoomDay(
                 roomId,
                 date,
+                year,
+                month,
+                day,
                 roomType,
                 pricePerNight,
                 RoomStatus.AVAILABLE,
@@ -213,6 +223,47 @@ contract HotelRooms is ERC721, Ownable {
         return (roomDay.roomId, roomDay.date);
     }
 
+     function getRoomDayFilter(
+        address owner,
+        RoomStatus status,
+        RoomType roomType,
+        uint256 year,
+        uint256 month,
+        uint256 day
+    ) external view returns (RoomDay[] memory) {
+        RoomDay[] memory result = new RoomDay[](allRoomDays.length);
+        uint256 index = 0;
+        for (uint256 i = 0; i < allRoomDays.length; i++) {
+            if ((owner == address(0) || allRoomDays[i].owner == owner) && 
+                (allRoomDays[i].status == status || status == RoomStatus.ALL) && 
+                (allRoomDays[i].roomType == roomType || roomType == RoomType.ALL) &&
+                (year == 0 || allRoomDays[i].year == year) &&
+                (month == 0 || allRoomDays[i].month == month) &&
+                (day == 0 || allRoomDays[i].day == day)
+            ) {
+                result[index++] = allRoomDays[i];
+                console.log("result", result[index-1].owner);
+            }
+
+        }
+        // Create a new array with the exact size needed
+        RoomDay[] memory finalResult = new RoomDay[](index);
+        // Copy only the valid elements
+        for (uint256 i = 0; i < index; i++) {
+            finalResult[i] = result[i];
+        }
+        return finalResult;
+    }
+
+    function setToUsed(uint256 tokenId) external  {
+        require(_roomDays[tokenId].roomId != 0, "Room day not found");
+        RoomDay memory roomDay = _roomDays[tokenId];
+        require(roomDay.status == RoomStatus.BOOKED, "Room is not booked");
+        require(roomDay.date < block.timestamp, "Room is not expired");
+        require(roomDay.owner == msg.sender, "You are not the owner of this room");
+        _roomDays[tokenId].status = RoomStatus.USED;
+        _acumulateTotal(roomDay.date, roomDay.roomType, RoomStatus.USED);
+    }
     function getRoomDayToken(
         uint256 roomId,
         uint256 date
