@@ -59,10 +59,11 @@ export function RoomsTable() {
 
       try {
         setLoading(true);
+        const signer = await provider.getSigner();
         const contractAddress = await getContractAddress();
         const abi = await getContractABI();
 
-        const contract = new ethers.Contract(contractAddress, abi, provider);
+        const contract = new ethers.Contract(contractAddress, abi, signer);
 
         const offset = (currentPage - 1) * ITEMS_PER_PAGE;
         const roomDays = await contract.getAllRoomDays(offset, ITEMS_PER_PAGE);

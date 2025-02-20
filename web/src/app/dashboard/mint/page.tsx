@@ -1,4 +1,5 @@
 "use client";
+
 import { useState } from "react";
 import { useWeb3 } from "@/context/Web3Context";
 import { Button } from "@/components/ui/button";
@@ -25,19 +26,13 @@ export default function MintPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!provider || !account) {
-      router.push('/')
-      return
-    }
-    //const balance = await provider.getBalance(account);
-    //console.log(balance);
+    if (!provider || !account) return;
+
     try {
       const signer = await provider.getSigner();
       const contractAddress = await getContractAddress();
-      console.log("direccion del contrato",contractAddress);
       const abi = await getContractABI();
       const contract = new ethers.Contract(contractAddress, abi, signer);
-
       const startTimestamp = new Date(formData.startDate).getTime() / 1000;
       const endTimestamp = new Date(formData.endDate).getTime() / 1000;
 
@@ -48,7 +43,6 @@ export default function MintPage() {
         formData.roomType,
         ethers.parseEther(formData.price)
       );
-      console.log(tx);
 
       await tx.wait();
       alert("Habitación minteada con éxito!");
@@ -59,65 +53,109 @@ export default function MintPage() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-4">
-      <div>
-        <label className="block mb-2">Fecha Desde</label>
-        <input
-          type="date"
-          value={formData.startDate}
-          onChange={(e) =>
-            setFormData({ ...formData, startDate: e.target.value })
-          }
-          className="w-full p-2 border rounded"
-        />
-      </div>
-      <div>
-        <label className="block mb-2">Fecha Hasta</label>
-        <input
-          type="date"
-          value={formData.endDate}
-          onChange={(e) =>
-            setFormData({ ...formData, endDate: e.target.value })
-          }
-          className="w-full p-2 border rounded"
-        />
-      </div>
-      <div>
-        <label className="block mb-2">Room ID Inicio</label>
-        <input
-          type="number"
-          value={formData.roomIdStart}
-          onChange={(e) =>
-            setFormData({ ...formData, roomIdStart: e.target.value })
-          }
-          className="w-full p-2 border rounded"
-        />
-      </div>
-      <div>
-        <label className="block mb-2">Precio por noche (ETH)</label>
-        <input
-          type="number"
-          step="0.01"
-          value={formData.price}
-          onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-          className="w-full p-2 border rounded"
-        />
-      </div>
-      <div>
-        <label className="block mb-2">Tipo de Habitación</label>
-        <select
-          value={formData.roomType}
-          onChange={(e) =>
-            setFormData({ ...formData, roomType: Number(e.target.value) })
-          }
-          className="w-full p-2 border rounded"
+    <div className="container max-w-xl mx-auto mt-5 bg-white rounded-lg shadow p-8">
+      <h1 className="text-2xl font-bold mb-6 text-gray-800">Mintear Habitaciones</h1>
+      <p className="text-gray-600 mb-6">
+        Genera tokens para fechas específicas y asigna precios para habitaciones.
+      </p>
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Start Date */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Fecha Desde
+          </label>
+          <input
+            type="date"
+            value={formData.startDate}
+            onChange={(e) =>
+              setFormData({ ...formData, startDate: e.target.value })
+            }
+            className="block w-full rounded-md border-gray-300 shadow-sm 
+                       focus:border-gold focus:ring-gold"
+            required
+          />
+        </div>
+
+        {/* End Date */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Fecha Hasta
+          </label>
+          <input
+            type="date"
+            value={formData.endDate}
+            onChange={(e) =>
+              setFormData({ ...formData, endDate: e.target.value })
+            }
+            className="block w-full rounded-md border-gray-300 shadow-sm 
+                       focus:border-gold focus:ring-gold"
+            required
+          />
+        </div>
+
+        {/* Room ID */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Room ID Inicio
+          </label>
+          <input
+            type="number"
+            value={formData.roomIdStart}
+            onChange={(e) =>
+              setFormData({ ...formData, roomIdStart: e.target.value })
+            }
+            className="block w-full rounded-md border-gray-300 shadow-sm 
+                       focus:border-gold focus:ring-gold"
+            required
+          />
+        </div>
+
+        {/* Price per Night */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Precio por noche (ETH)
+          </label>
+          <input
+            type="number"
+            step="0.01"
+            value={formData.price}
+            onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+            className="block w-full rounded-md border-gray-300 shadow-sm 
+                       focus:border-gold focus:ring-gold"
+            required
+          />
+        </div>
+
+        {/* Room Type */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Tipo de Habitación
+          </label>
+          <select
+            value={formData.roomType}
+            onChange={(e) =>
+              setFormData({ ...formData, roomType: Number(e.target.value) })
+            }
+            className="block w-full rounded-md border-gray-300 shadow-sm 
+                       focus:border-gold focus:ring-gold"
+            required
+          >
+            <option value={RoomType.STANDARD}>Standard</option>
+            <option value={RoomType.DELUXE}>Deluxe</option>
+            <option value={RoomType.SUITE}>Suite</option>
+          </select>
+        </div>
+
+        {/* Submit Button */}
+        <Button
+          type="submit"
+          className="w-full bg-gold hover:bg-goldHover text-white 
+                     font-medium py-2 px-4 rounded-md transition"
         >
-          <option value={RoomType.STANDARD}>Standard</option>
-          <option value={RoomType.DELUXE}>Deluxe</option>
-          <option value={RoomType.SUITE}>Suite</option>
-        </select>
-      </div>
-      <Button type="submit">Mintear Habitación</Button>
-    </form>
+          Mintear
+        </Button>
+      </form>
+    </div>
   );
 }

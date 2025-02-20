@@ -1,8 +1,9 @@
-'use client';
+"use client";
 
-import { useWeb3 } from '@/context/Web3Context';
-import { Button } from '@/components/ui/button';
-import { useRouter } from 'next/navigation';
+import Image from "next/image";
+import { useWeb3 } from "@/context/Web3Context";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 export function Header() {
   const { connect, account, isConnected } = useWeb3();
@@ -10,19 +11,53 @@ export function Header() {
 
   const handleConnect = async () => {
     await connect();
-    if (isConnected) {
-      router.push('/dashboard');
-    }
+    router.push("/dashboard");
+  };
+
+  const handleGoDashboard = () => {
+    router.push("/dashboard");
   };
 
   return (
-    <header className="w-full p-4 border-b">
-      <div className="container mx-auto flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Hotel California NFT</h1>
-        <Button onClick={handleConnect}>
-          {isConnected ? `${account?.slice(0, 6)}...${account?.slice(-4)}` : 'Conectar Wallet'}
-        </Button>
+    <header className="w-full bg-white/80 border-b border-gray-100 shadow-sm backdrop-blur-sm">
+      <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+        {/* Logo + Title */}
+        <div className="flex items-center space-x-3">
+          {/* Replace /images/logo.png with your actual path */}
+          <img
+            src="/images/logo.png"
+            alt="Hotel California Logo"
+            width={36}
+            height={36}
+            className="object-contain"
+          />
+          <h1 className="text-xl font-bold tracking-wide text-gray-800">
+            Hotel California NFT
+          </h1>
+        </div>
+
+        {/* Right side: Connect Wallet or Show Address + Dashboard Button */}
+        {isConnected ? (
+          <div className="flex items-center space-x-4">
+            <span className="hidden sm:inline text-sm text-gray-600">
+              Conectado: <strong>{account?.slice(0, 6)}...{account?.slice(-4)}</strong>
+            </span>
+            <Button
+              onClick={handleGoDashboard}
+              className="bg-gold hover:bg-goldHover text-white px-5 py-2 rounded-md font-medium transition"
+            >
+              Ir al Dashboard
+            </Button>
+          </div>
+        ) : (
+          <Button
+            onClick={handleConnect}
+            className="bg-gold hover:bg-goldHover text-white px-5 py-2 rounded-md font-medium transition"
+          >
+            Conectar Wallet
+          </Button>
+        )}
       </div>
     </header>
   );
-} 
+}
