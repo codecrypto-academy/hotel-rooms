@@ -6,7 +6,7 @@ export default function Dashboard() {
       <h1 className="text-2xl md:text-3xl font-bold mb-6 text-gray-800">
         Panel Principal
       </h1>
-      <div className="bg-white/90 shadow-lg rounded-lg p-6 flex flex-col md:flex-row gap-6">
+      <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col md:flex-row gap-6">
         {/* Text Section */}
         <div className="flex-1">
           <p className="text-gray-600 mb-4">Desde aquí podrás:</p>

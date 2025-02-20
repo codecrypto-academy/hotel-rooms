@@ -59,7 +59,7 @@ export function RoomsTable() {
 
       try {
         setLoading(true);
-        const signer = await provider.getSigner();
+        const signer = provider.getSigner();
         const contractAddress = await getContractAddress();
         const abi = await getContractABI();
 

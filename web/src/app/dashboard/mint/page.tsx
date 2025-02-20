@@ -29,7 +29,7 @@ export default function MintPage() {
     if (!provider || !account) return;
 
     try {
-      const signer = await provider.getSigner();
+      const signer = provider.getSigner();
       const contractAddress = await getContractAddress();
       const abi = await getContractABI();
       const contract = new ethers.Contract(contractAddress, abi, signer);

@@ -20,11 +20,6 @@ export default function ComprarPage() {
     }
    
     try {
-      setLoading(true)
-      
-      const signer = await provider.getSigner();
-
-    try {
       setLoading(true);
       const dateTimestamp = Math.floor(new Date(date).getTime() / 1000);
 
