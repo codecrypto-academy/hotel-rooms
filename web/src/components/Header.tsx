@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useWeb3 } from "@/context/Web3Context";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
@@ -18,11 +17,18 @@ export function Header() {
     router.push("/dashboard");
   };
 
+  const handleGoHome = () => {
+    router.push("/");
+  };
+
   return (
     <header className="w-full bg-white/80 border-b border-gray-100 shadow-sm backdrop-blur-sm">
       <div className="container mx-auto px-6 py-4 flex items-center justify-between">
         {/* Logo + Title */}
-        <div className="flex items-center space-x-3">
+        <div 
+          className="flex items-center space-x-3 cursor-pointer hover:opacity-80 transition-opacity"
+          onClick={handleGoHome}
+        >
           {/* Replace /images/logo.png with your actual path */}
           <img
             src="/images/logo.png"
