@@ -1,7 +1,8 @@
 "use server";
 
+import fs from "fs";
+import path from "path";
 import contractABI from '@/lib/abi.json';
-import contractAddress from '@/lib/contrato.json';
 
 
 export async function getContractABI() {
@@ -9,6 +10,6 @@ export async function getContractABI() {
 }
 
 export async function getContractAddress() {
-  return contractAddress.address;
+  const contractAddress = fs.readFileSync(path.join(process.cwd(),  'src', 'lib', 'contrato.json'), 'utf8').toString();
+  return contractAddress.trim();
 }
-
