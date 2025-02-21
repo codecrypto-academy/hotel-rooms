@@ -21,7 +21,7 @@ export default function ComprarPage() {
    
     try {
       setLoading(true);
-      const dateTimestamp = Math.floor(new Date(date).getTime() / 1000);
+      // const dateTimestamp = Math.floor(new Date(date).getTime() / 1000);
 
       const signer = await provider.getSigner();
       const contractAddress = await getContractAddress();
@@ -54,7 +54,7 @@ export default function ComprarPage() {
   };
 
   return (
-    <div className="max-w-lg mx-auto mt-10 bg-white rounded-lg shadow p-8">
+    <div className="max-w-lg mx-auto mt-5 bg-white rounded-lg shadow p-8">
       <h1 className="text-2xl font-bold mb-6 text-gray-800">Comprar Habitación</h1>
       <p className="text-gray-600 mb-6">
         Reserva una habitación existente para la fecha deseada.

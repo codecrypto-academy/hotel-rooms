@@ -5,7 +5,6 @@ import { useWeb3 } from "@/context/Web3Context";
 import { Button } from "@/components/ui/button";
 import { ethers } from "ethers";
 import { getContractABI, getContractAddress } from "@/lib/contract";
-import { useRouter } from "next/navigation";
 enum RoomType {
   STANDARD,
   DELUXE,
@@ -14,7 +13,6 @@ enum RoomType {
 
 export default function MintPage() {
   const { provider, account } = useWeb3();
-  const router = useRouter();
   const [formData, setFormData] = useState({
     startDate: "",
     endDate: "",
@@ -29,7 +27,7 @@ export default function MintPage() {
     if (!provider || !account) return;
 
     try {
-      const signer = provider.getSigner();
+      const signer = await provider.getSigner();
       const contractAddress = await getContractAddress();
       const abi = await getContractABI();
       const contract = new ethers.Contract(contractAddress, abi, signer);
