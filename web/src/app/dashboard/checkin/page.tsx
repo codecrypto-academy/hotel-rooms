@@ -19,7 +19,6 @@ export default function CheckinPage() {
       setIsLoading(true);
       const signer = await provider.getSigner();
       const contractAddress = await getContractAddress();
-      console.log("direccion del contrato",contractAddress);
       const abi = await getContractABI();
       const contract = new ethers.Contract(contractAddress, abi, signer);
       const tx = await contract?.setToUsed(tokenId);

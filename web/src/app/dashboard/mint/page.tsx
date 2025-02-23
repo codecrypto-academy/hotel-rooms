@@ -25,23 +25,26 @@ export default function MintPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!provider || !account) return;
+    
 
     try {
       const signer = await provider.getSigner();
       const contractAddress = await getContractAddress();
       const abi = await getContractABI();
+   
       const contract = new ethers.Contract(contractAddress, abi, signer);
       const startTimestamp = new Date(formData.startDate).getTime() / 1000;
       const endTimestamp = new Date(formData.endDate).getTime() / 1000;
-
-      const tx = await contract.mintRoomDays(
+      
+      const tx = await contract.mintMultipleRoomDays(
         formData.roomIdStart,
+        formData.roomIdEnd,
         startTimestamp,
         endTimestamp,
         formData.roomType,
         ethers.parseEther(formData.price)
+    
       );
-
       await tx.wait();
       alert("Habitación minteada con éxito!");
     } catch (error) {
@@ -102,6 +105,21 @@ export default function MintPage() {
             value={formData.roomIdStart}
             onChange={(e) =>
               setFormData({ ...formData, roomIdStart: e.target.value })
+            }
+            className="block w-full rounded-md border-gray-300 shadow-sm 
+                       focus:border-gold focus:ring-gold"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Room ID End
+          </label>
+          <input
+            type="number"
+            value={formData.roomIdEnd}
+            onChange={(e) =>
+              setFormData({ ...formData, roomIdEnd: e.target.value })
             }
             className="block w-full rounded-md border-gray-300 shadow-sm 
                        focus:border-gold focus:ring-gold"

@@ -1,6 +1,7 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -8,50 +9,63 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { RoomType } from '@/lib/types'
-import { ethers } from 'ethers'
-import { getContractAddress, getContractABI } from '@/lib/contract'
-import { useWeb3 } from '@/context/Web3Context'
-import { useRouter } from 'next/navigation'
-import { RoomStatus } from '@/lib/types'
-import { RoomDay } from '@/lib/types'
+} from "@/components/ui/table";
+import { RoomType } from "@/lib/types";
+import { ethers } from "ethers";
+import { getContractAddress, getContractABI } from "@/lib/contract";
+import { useWeb3 } from "@/context/Web3Context";
+import { useRouter } from "next/navigation";
+import { RoomStatus } from "@/lib/types";
+import { RoomDay } from "@/lib/types";
+import { Total } from "@/lib/types";
 
 export default function MisTokens() {
-  const [roomDays, setRoomDays] = useState<RoomDay[]>([])
-  const { account, provider } =  useWeb3();
+  const [roomDays, setRoomDays] = useState<RoomDay[]>([]);
+  const [totals, setTotals] = useState<Total[]>([]);
+  const { account, provider } = useWeb3();
   const router = useRouter();
   useEffect(() => {
     const loadRoomDays = async () => {
-      if (!provider) {
-        
-        return
+      if (!provider || !account) {
+        return;
       }
-      
+
       const contractAddress = await getContractAddress();
       const abi = await getContractABI();
       const contract = new ethers.Contract(contractAddress, abi, provider);
-      console.log(account)
-     
-       try {
-         const rooms = await contract.getRoomDayFilter(
-           account,
-           RoomStatus.ALL,
-           RoomType.ALL,
-           0,  
-           0,  
-           0   
-         )
-         
-         setRoomDays(rooms)
-       } catch (error) {
-         console.error('Error loading room days:', error)
-       }
+      try {
+        const [roomDays, totals] = await contract.getAllData();
+        // rooms[0] contains RoomDay[] array, rooms[1] contains Total[] array
+
+        setRoomDays(
+          roomDays.filter(
+            (room: RoomDay) =>
+              room.owner.toLowerCase() === account.toLowerCase()
+          )
+        );
+        setTotals(totals);
+      } catch (error) {
+        console.error("Error loading room days:", error);
+      }
+    };
+
+    loadRoomDays();
+  }, [account, provider, router]);
+
+  const handleSpendToken = async (tokenId: number) => {
+    const contractAddress = await getContractAddress();
+    const abi = await getContractABI();
+    const signer = await provider?.getSigner();
+    if (!signer) {
+      alert("No se pudo obtener el signer");
+      return;
     }
-
-    loadRoomDays()
-  }, [account, provider, router])
-
+    const contract = new ethers.Contract(contractAddress, abi, signer);
+    const tx = await contract.setToUsed(tokenId);
+    await tx.wait();
+    alert("Token gastado");
+    router.refresh();
+  };
 
   return (
     <div className="container mx-auto py-10">
@@ -60,36 +74,26 @@ export default function MisTokens() {
         <TableHeader>
           <TableRow>
             <TableHead>Habitación</TableHead>
-            <TableHead>Fecha</TableHead>
-            <TableHead>Token</TableHead>
-            <TableHead>Tipo</TableHead>
-            <TableHead>Precio</TableHead>
-            <TableHead>Estado</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {roomDays.map((room) => (
-            <TableRow key={room.tokenId.toString()}>
-              <TableCell>{room.roomId.toString()}</TableCell>
-              <TableCell>
-                {`${room.day}/${room.month}/${room.year}`}
-              </TableCell>
+          {roomDays.map((room, index) => (
+            <TableRow key={index}>
               <TableCell>
                 {room.tokenId.toString()}
-              </TableCell>
-              <TableCell>
-                {RoomType[room.roomType]}
-              </TableCell>
-              <TableCell>
-                {(Number(room.pricePerNight) / 1e18).toFixed(4)} ETH
-              </TableCell>
-              <TableCell>
-                {RoomStatus[room.status]}
+                <Button
+                  className="bg-red-500 ml-2"
+                  onClick={() => {
+                    handleSpendToken(Number(room.tokenId));
+                  }}
+                >
+                  Gastar
+                </Button>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
     </div>
-  )
-} 
+  );
+}

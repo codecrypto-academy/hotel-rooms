@@ -71,7 +71,7 @@ export default function RoomsPage() {
     }
 
     fetchRoomDays()
-  }, [provider, account])
+  }, [provider, account, router])
 
   return (
     <div className="container mx-auto py-6">

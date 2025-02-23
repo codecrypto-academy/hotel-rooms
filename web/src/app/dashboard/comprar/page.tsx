@@ -1,10 +1,10 @@
-'use client'
-import { useState } from 'react'
-import { useWeb3 } from '@/context/Web3Context'
-import { ethers } from 'ethers'
-import { getContractABI } from '@/lib/contract'
-import { getContractAddress } from '@/lib/contract'
-import { useRouter } from 'next/navigation'
+"use client";
+import { useState } from "react";
+import { useWeb3 } from "@/context/Web3Context";
+import { ethers } from "ethers";
+import { getContractABI } from "@/lib/contract";
+import { getContractAddress } from "@/lib/contract";
+import { useRouter } from "next/navigation";
 export default function ComprarPage() {
   const [roomId, setRoomId] = useState("");
   const [date, setDate] = useState("");
@@ -12,13 +12,13 @@ export default function ComprarPage() {
   const { provider, account } = useWeb3();
   const router = useRouter();
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log(provider, account);
-        if (!provider || !account) {
-          router.push('/')
-          return
+    e.preventDefault();
+
+    if (!provider || !account) {
+      router.push("/");
+      return;
     }
-   
+
     try {
       setLoading(true);
       // const dateTimestamp = Math.floor(new Date(date).getTime() / 1000);
@@ -28,16 +28,15 @@ export default function ComprarPage() {
       const abi = await getContractABI();
       const contract = new ethers.Contract(contractAddress, abi, signer);
 
-    
       const dateObj = new Date(date);
       const year = dateObj.getFullYear();
-      const month = dateObj.getMonth() + 1; 
+      const month = dateObj.getMonth() + 1;
       const day = dateObj.getDate();
-      
+
       // Get token ID using year, month, day format
-      const tokenId = (year * 10000 + month * 100 + day)*1000 + Number(roomId)    ;
-                     
-      console.log("Calculated tokenId:", tokenId);
+      const tokenId =
+        (year * 10000 + month * 100 + day) * 1000 + Number(roomId);
+
       // Realizar la transferencia del token
       const tx = await contract.transferRoomDay(tokenId, {
         value: ethers.parseEther("12"),
@@ -55,7 +54,9 @@ export default function ComprarPage() {
 
   return (
     <div className="max-w-lg mx-auto mt-5 bg-white rounded-lg shadow p-8">
-      <h1 className="text-2xl font-bold mb-6 text-gray-800">Comprar Habitación</h1>
+      <h1 className="text-2xl font-bold mb-6 text-gray-800">
+        Comprar Habitación
+      </h1>
       <p className="text-gray-600 mb-6">
         Reserva una habitación existente para la fecha deseada.
       </p>

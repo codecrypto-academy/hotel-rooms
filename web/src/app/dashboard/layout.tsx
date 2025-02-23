@@ -41,6 +41,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 Resumen
               </Link>
             </li>
+
+            <li>
+              <Link href="/dashboard/buy" className="hover:text-gray-900 transition-colors">
+                Buy
+              </Link>
+            </li>
+            <li>
+              <Link href="/dashboard/mistokens" className="hover:text-gray-900 transition-colors">
+                Mis tokens
+              </Link>
+            </li>
           </ul>
         </div>
       </nav>

@@ -60,7 +60,6 @@ export default function ResumenPage() {
       const contract = new ethers.Contract(contractAddress, abi, provider);
       try {
         const result = await contract.getTotals()
-        console.log("result", result);
         const processedTotals = result.map((item: any) => ({
           year: Number(item.year),
           month: Number(item.month),
@@ -116,7 +115,8 @@ export default function ResumenPage() {
                     <TableCell>
                       {total.status === 0 ? 'Disponible' : 
                        total.status === 1 ? 'Reservada' : 
-                       total.status === 2 ? 'Ocupada' : 'Desconocido'}
+                       total.status === 2 ? 'Mantenimiento' : 
+                       total.status === 3 ? 'Ocupada' : 'Desconocido'}
                     </TableCell>
                     <TableCell>
                       {total.roomType === 0 ? 'Standard' :
