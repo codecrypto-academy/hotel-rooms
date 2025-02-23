@@ -4,11 +4,9 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./UtilsDate.sol";
-import "../lib/forge-std/src/console.sol";
 
 contract HotelRooms is ERC721, Ownable {
     uint256 public constant TOTAL_ROOMS = 100;
-    address private _owner;
 
     uint256 public totalRoomDays;
 
@@ -18,7 +16,7 @@ contract HotelRooms is ERC721, Ownable {
         uint256 day;
         RoomStatus status;
         RoomType roomType;
-        uint256 count;
+        int256 count;
     }
 
     Total[] private totals;
@@ -62,18 +60,17 @@ contract HotelRooms is ERC721, Ownable {
     mapping(uint256 => mapping(uint256 => bool)) private _isBooked;
 
     constructor() ERC721("HotelRooms", "HROOM") Ownable(msg.sender) {
-        _owner = msg.sender;
+      
     }
 
-        function _createTokenId(
+    function _createTokenId(
         uint256 roomId,
         uint256 date
     ) internal pure returns (uint256) {
         (uint256 year, uint256 month, uint256 day) = UtilsDate.timestampToDate(
             date
         );
-        return (year * 10000 + month * 100 + day)*1000 + roomId;
-    
+        return (year * 10000 + month * 100 + day) * 1000 + roomId;
     }
 
     function _addTotal(
@@ -81,7 +78,8 @@ contract HotelRooms is ERC721, Ownable {
         uint256 month,
         uint256 day,
         RoomStatus status,
-        RoomType roomType
+        RoomType roomType,
+        int256 count
     ) internal {
         bool found = false;
         for (uint i = 0; i < totals.length; i++) {
@@ -92,7 +90,7 @@ contract HotelRooms is ERC721, Ownable {
                 totals[i].status == status &&
                 totals[i].roomType == roomType
             ) {
-                totals[i].count++;
+                totals[i].count = totals[i].count + count;
                 found = true;
                 break;
             }
@@ -113,13 +111,14 @@ contract HotelRooms is ERC721, Ownable {
     function _acumulateTotal(
         uint256 date,
         RoomType roomType,
-        RoomStatus status
+        RoomStatus status,
+        int256 count
     ) internal {
         (uint256 year, uint256 month, uint256 day) = UtilsDate.timestampToDate(
             date
         );
 
-        _addTotal(year, month, day, status, roomType);
+        _addTotal(year, month, day, status, roomType, count);
         //_addTotal(year, month, day, RoomStatus.ALL, RoomType.ALL);
         //_addTotal(year, month, 0, RoomStatus.ALL, RoomType.ALL);
         //_addTotal(year, 0, 0, RoomStatus.ALL, RoomType.ALL);
@@ -136,12 +135,11 @@ contract HotelRooms is ERC721, Ownable {
         uint256 endDate,
         RoomType roomType,
         uint256 pricePerNight
-    ) external {
-        require(msg.sender == _owner, "Only owner can mint room days");
+    ) public onlyOwner {
         require(roomId > 0 && roomId <= TOTAL_ROOMS, "Invalid room number");
         require(startDate <= endDate, "Invalid date range");
         require(startDate >= block.timestamp, "Cannot book past dates");
-        
+
         for (uint256 date = startDate; date <= endDate; date += 1 days) {
             uint256 tokenId = _createTokenId(roomId, date);
             require(
@@ -149,9 +147,8 @@ contract HotelRooms is ERC721, Ownable {
                 "Room already booked for this date"
             );
             totalRoomDays++;
-            (uint256 year, uint256 month, uint256 day) = UtilsDate.timestampToDate(
-                date
-            );
+            (uint256 year, uint256 month, uint256 day) = UtilsDate
+                .timestampToDate(date);
             RoomDay memory tmp = RoomDay(
                 roomId,
                 date,
@@ -165,13 +162,32 @@ contract HotelRooms is ERC721, Ownable {
                 msg.sender
             );
             allRoomDays.push(tmp);
-           _acumulateTotal(date, roomType, RoomStatus.AVAILABLE);
+            _acumulateTotal(date, roomType, RoomStatus.AVAILABLE, 1);
             _roomDays[tokenId] = tmp;
 
-            _safeMint(msg.sender, tokenId);
+            _isBooked[roomId][date] = true;
+            _mint(msg.sender, tokenId);
         }
     }
 
+    function mintMultipleRoomDays(
+        uint256 roomIdStart,
+        uint256 roomIdEnd,
+        uint256 startDate,
+        uint256 endDate,
+        RoomType roomType,
+        uint256 pricePerNight
+    ) external onlyOwner {
+        for (uint256 roomId = roomIdStart; roomId <= roomIdEnd; roomId++) {
+            mintRoomDays(
+                roomId,
+                startDate,
+                endDate,
+                roomType,
+                pricePerNight
+            );
+        }
+    }
     function getAllRoomDays(
         uint256 offset,
         uint256 limit
@@ -193,26 +209,55 @@ contract HotelRooms is ERC721, Ownable {
 
         return result;
     }
-    function transferRoomDay(uint256 tokenId) external payable {
-        // require(_exists(tokenId), "Token does not exist"); investigar
+
+    function mintRoomDaysMultiple(
+        uint256[] calldata tokenIds
+    ) external payable {
+        for (uint256 i = 0; i < tokenIds.length; i++) {
+            this.transferRoomDay(tokenIds[i]);
+        }
+    }
+
+    function transferRoomDay(uint256 tokenId) public payable {
+        
         RoomDay memory roomDay = _roomDays[tokenId];
         require(
             roomDay.status == RoomStatus.AVAILABLE,
             "Room is not available for transfer"
         );
-        require(
-            msg.value >= roomDay.pricePerNight,
-            "Insufficient payment for transfer"
-        );
+        
         require(
             roomDay.date >= block.timestamp,
             "Cannot transfer expired room days"
         );
+        // Find and update the room day in the array
+        for (uint256 i = 0; i < allRoomDays.length; i++) {
+            if (allRoomDays[i].tokenId == tokenId) {
+                allRoomDays[i].status = RoomStatus.BOOKED;
+                allRoomDays[i].owner = msg.sender;
+                break;
+            }
+        }
         // Update room status to booked
-        _roomDays[tokenId].status = RoomStatus.BOOKED;
-        _roomDays[tokenId].owner = msg.sender;
-        _acumulateTotal(roomDay.date, roomDay.roomType, RoomStatus.BOOKED);
-        _transfer(_owner, msg.sender, tokenId);
+        roomDay.status = RoomStatus.BOOKED;
+        roomDay.owner = msg.sender;
+
+        _acumulateTotal(
+            roomDay.date,
+            roomDay.roomType,
+            RoomStatus.AVAILABLE,
+            -1
+        );
+        _acumulateTotal(roomDay.date, roomDay.roomType, RoomStatus.BOOKED, 1);
+        _transfer(owner(), msg.sender, tokenId);
+    }
+
+    function transferRoomDayMultiple(
+        uint256[] calldata tokenIds
+    ) external payable {
+        for (uint256 i = 0; i < tokenIds.length; i++) {
+            transferRoomDay(tokenIds[i]);
+        }
     }
 
     function getRoomDay(
@@ -223,7 +268,23 @@ contract HotelRooms is ERC721, Ownable {
         return (roomDay.roomId, roomDay.date);
     }
 
-     function getRoomDayFilter(
+    function getRoomsBetweenDates(
+        uint256 dateFrom,
+        uint256 dateTo
+    ) external view returns (RoomDay[] memory) {
+        RoomDay[] memory result = new RoomDay[](allRoomDays.length);
+        uint256 index = 0;
+        for (uint256 i = 0; i < allRoomDays.length; i++) {
+            if (
+                allRoomDays[i].date >= dateFrom && allRoomDays[i].date <= dateTo
+            ) {
+                result[index++] = allRoomDays[i];
+            }
+        }
+        return result;
+    }
+
+    function getRoomDayFilter(
         address owner,
         RoomStatus status,
         RoomType roomType,
@@ -234,16 +295,17 @@ contract HotelRooms is ERC721, Ownable {
         RoomDay[] memory result = new RoomDay[](allRoomDays.length);
         uint256 index = 0;
         for (uint256 i = 0; i < allRoomDays.length; i++) {
-            if ((owner == address(0) || allRoomDays[i].owner == owner) && 
-                (allRoomDays[i].status == status || status == RoomStatus.ALL) && 
-                (allRoomDays[i].roomType == roomType || roomType == RoomType.ALL) &&
+            if (
+                (owner == address(0) || allRoomDays[i].owner == owner) &&
+                (allRoomDays[i].status == status || status == RoomStatus.ALL) &&
+                (allRoomDays[i].roomType == roomType ||
+                    roomType == RoomType.ALL) &&
                 (year == 0 || allRoomDays[i].year == year) &&
                 (month == 0 || allRoomDays[i].month == month) &&
                 (day == 0 || allRoomDays[i].day == day)
             ) {
                 result[index++] = allRoomDays[i];
-                }
-
+            }
         }
         // Create a new array with the exact size needed
         RoomDay[] memory finalResult = new RoomDay[](index);
@@ -254,14 +316,28 @@ contract HotelRooms is ERC721, Ownable {
         return finalResult;
     }
 
-    function setToUsed(uint256 tokenId) external  {
+    function setToUsed(uint256 tokenId) external {
         require(_roomDays[tokenId].roomId != 0, "Room day not found");
         RoomDay memory roomDay = _roomDays[tokenId];
-        require(roomDay.status == RoomStatus.BOOKED, "Room is not booked");
-        require(roomDay.owner == msg.sender, "You are not the owner of this room");
+        // Search in allRoomDays to get the most up-to-date data
+        
+        // require(roomDay.status == RoomStatus.BOOKED, "Room is not booked");
+        // require(
+        //     roomDay.owner == msg.sender,
+        //     "You are not the owner of this room"
+        // );
         _roomDays[tokenId].status = RoomStatus.USED;
-        _acumulateTotal(roomDay.date, roomDay.roomType, RoomStatus.USED);
-        _transfer(msg.sender, _owner, tokenId);
+        // Update status in allRoomDays array
+        for (uint256 i = 0; i < allRoomDays.length; i++) {
+            if (allRoomDays[i].tokenId == tokenId) {
+                allRoomDays[i].status = RoomStatus.USED;
+                allRoomDays[i].owner = owner();
+                break;
+            }
+        }
+        _acumulateTotal(roomDay.date, roomDay.roomType, RoomStatus.BOOKED, -1);
+        _acumulateTotal(roomDay.date, roomDay.roomType, RoomStatus.USED, 1);
+        _transfer(msg.sender, owner(), tokenId);
     }
 
     function getRoomDayToken(
@@ -285,7 +361,7 @@ contract HotelRooms is ERC721, Ownable {
         uint256 date,
         uint256 pricePerNight
     ) external onlyOwner {
-        require(!_isBooked[roomId][date], "Room is already booked");
+    
         require(roomId > 0 && roomId <= TOTAL_ROOMS, "Invalid room number");
         require(date > 0, "Invalid date");
         require(pricePerNight > 0, "Invalid price per night");
@@ -297,4 +373,25 @@ contract HotelRooms is ERC721, Ownable {
         (bool success, ) = owner().call{value: balance}("");
         require(success, "Transfer failed");
     }
+    function getAllData() external view returns (RoomDay[] memory, Total[] memory) {
+        return (allRoomDays, totals);
+    }
+    function misTokens() external view returns (uint256[] memory) {
+        uint256 count = 0;
+        
+        for (uint256 i = 0; i < allRoomDays.length; i++) {
+            if (allRoomDays[i].owner == msg.sender) {
+                count++;
+            }
+        }
+        uint256[] memory tokenIds = new uint256[](count);
+        for (uint256 i = 0; i < allRoomDays.length; i++) {
+            if (allRoomDays[i].owner == msg.sender) {
+                tokenIds[count] = allRoomDays[i].tokenId;
+                count++;
+            }
+        }
+        return tokenIds;
+    }
+
 }
