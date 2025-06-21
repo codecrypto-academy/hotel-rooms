@@ -21,6 +21,7 @@ import {
   Settings,
   Plus,
 } from "lucide-react"
+import { useWeb3 } from "@/context/Web3Context"
 
 // Mock role - replace with your actual role logic
 const role = "admin" // or "user"
@@ -137,6 +138,7 @@ const recentActivity = [
 ]
 
 export default function Dashboard() {
+  const { role } = useWeb3();
   const isAdmin = role === "admin"
   const stats = isAdmin ? adminStats : userStats
 
