@@ -39,7 +39,7 @@ export default function ComprarPage() {
 
       // Realizar la transferencia del token
       const tx = await contract.transferRoomDay(tokenId, {
-        value: ethers.parseEther("12"),
+        value: ethers.parseEther("100"),
       });
 
       await tx.wait();

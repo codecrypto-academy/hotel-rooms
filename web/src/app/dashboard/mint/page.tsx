@@ -20,6 +20,7 @@ export default function MintPage() {
     roomIdEnd: "",
     price: "",
     roomType: RoomType.STANDARD,
+    priceRoom: ""
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -36,6 +37,19 @@ export default function MintPage() {
       const startTimestamp = new Date(formData.startDate).getTime() / 1000;
       const endTimestamp = new Date(formData.endDate).getTime() / 1000;
       
+      console.log({
+          roomIdStart: formData.roomIdStart,
+          roomIdEnd: formData.roomIdEnd,
+          startTimestamp,
+          endTimestamp,
+          roomType: formData.roomType,
+          price: ethers.parseEther(formData.price).toString()
+      });
+
+      const owner = await contract.owner();
+      console.log("Connected ___:", account);
+      console.log("Contract Owner:", owner);
+
       const tx = await contract.mintMultipleRoomDays(
         formData.roomIdStart,
         formData.roomIdEnd,

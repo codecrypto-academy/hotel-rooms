@@ -5,10 +5,11 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { isConnected } = useWeb3();
+  const { isConnected, role } = useWeb3();
   const router = useRouter();
 
-  // If user somehow navigates to /dashboard but isn't connected, send them home
+  console.log(role)
+
   useEffect(() => {
     if (!isConnected) {
       router.replace("/");
@@ -17,39 +18,49 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="min-h-screen flex flex-col bg-[url('/images/pattern.svg')] bg-repeat">
-      {/* Optional internal navigation */}
       <nav className="bg-white border-b border-gray-100 shadow-sm">
         <div className="container mx-auto px-6 py-3">
           <ul className="flex space-x-6 text-gray-600">
-            <li>
-              <Link href="/dashboard/mint" className="hover:text-gray-900 transition-colors">
-                Mintear
-              </Link>
-            </li>
-            <li>
-              <Link href="/dashboard/comprar" className="hover:text-gray-900 transition-colors">
-                Comprar
-              </Link>
-            </li>
-            <li>
-              <Link href="/dashboard/rooms" className="hover:text-gray-900 transition-colors">
-                Habitaciones
-              </Link>
-            </li>
-            <li>
-              <Link href="/dashboard/resumen" className="hover:text-gray-900 transition-colors">
-                Resumen
-              </Link>
-            </li>
 
-            <li>
-              <Link href="/dashboard/buy" className="hover:text-gray-900 transition-colors">
-                Buy
-              </Link>
-            </li>
+            {/* Admin-only links */}
+            {role === 'admin' && (
+              <>
+                <li>
+                  <Link href="/dashboard/mint" className="hover:text-gray-900 transition-colors">
+                    Tokenizar
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/dashboard/resumen" className="hover:text-gray-900 transition-colors">
+                    Resumen
+                  </Link>
+                </li>
+              </>
+            )}
+
+            {/* Public/user-visible links */}
+            {role !== 'admin' && (
+                <>
+                 <li>
+                   <Link href="/dashboard/comprar" className="hover:text-gray-900 transition-colors">
+                     Comprar
+                   </Link>
+                 </li>
+                 <li>
+                   <Link href="/dashboard/rooms" className="hover:text-gray-900 transition-colors">
+                     Habitaciones
+                   </Link>
+                 </li>
+                 <li>
+                   <Link href="/dashboard/buy" className="hover:text-gray-900 transition-colors">
+                     Venta Mayorista
+                   </Link>
+                 </li>
+               </>
+            )}
             <li>
               <Link href="/dashboard/mistokens" className="hover:text-gray-900 transition-colors">
-                Mis tokens
+                Mis Tokens
               </Link>
             </li>
           </ul>
