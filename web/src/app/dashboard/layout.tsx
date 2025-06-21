@@ -8,8 +8,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const { isConnected, role } = useWeb3();
   const router = useRouter();
 
-  console.log(role)
-
   useEffect(() => {
     if (!isConnected) {
       router.replace("/");
@@ -26,13 +24,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {role === 'admin' && (
               <>
                 <li>
-                  <Link href="/dashboard/mint" className="hover:text-gray-900 transition-colors">
-                    Tokenizar
+                  <Link href="/dashboard/mint" className="hover:text-gold transition-colors">
+                    TOKENIZAR
                   </Link>
                 </li>
                 <li>
-                  <Link href="/dashboard/resumen" className="hover:text-gray-900 transition-colors">
-                    Resumen
+                  <Link href="/dashboard/resumen" className="hover:text-gold transition-colors">
+                    RESUMEN
                   </Link>
                 </li>
               </>
@@ -42,25 +40,25 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {role !== 'admin' && (
                 <>
                  <li>
-                   <Link href="/dashboard/comprar" className="hover:text-gray-900 transition-colors">
-                     Comprar
+                   <Link href="/dashboard/comprar" className="hover:text-gold transition-colors">
+                     COMPRAR
                    </Link>
                  </li>
                  <li>
-                   <Link href="/dashboard/rooms" className="hover:text-gray-900 transition-colors">
-                     Habitaciones
+                   <Link href="/dashboard/rooms" className="hover:text-gold transition-colors">
+                     HABITACIONES
                    </Link>
                  </li>
                  <li>
-                   <Link href="/dashboard/buy" className="hover:text-gray-900 transition-colors">
-                     Venta Mayorista
+                   <Link href="/dashboard/buy" className="hover:text-gold transition-colors">
+                     MAYORISTA
                    </Link>
                  </li>
                </>
             )}
-            <li>
-              <Link href="/dashboard/mistokens" className="hover:text-gray-900 transition-colors">
-                Mis Tokens
+            <li className="">
+              <Link href="/dashboard/mistokens" className="hover:text-gold transition-colors">
+                MIS TOKENS
               </Link>
             </li>
           </ul>
