@@ -12,6 +12,8 @@ contract HotelRoomsTest is Test {
     address public user1;
     address public user2;
 
+    string public metadataBaseURI = "https://base/api/metadata/";
+
     function setUp() public {
         owner = address(this);
 
@@ -56,7 +58,7 @@ contract HotelRoomsTest is Test {
         uint256 pricePerNight = 0.1 ether;
 
         vm.startPrank(user1);
-        HotelRooms hotelRooms = new HotelRooms();
+        HotelRooms hotelRooms = new HotelRooms(metadataBaseURI);
         for (uint256 roomId = 1; roomId <= 100; roomId++) {
             hotelRooms.mintRoomDays(
                 roomId,
@@ -79,7 +81,7 @@ contract HotelRoomsTest is Test {
         uint256 pricePerNight = 0.1 ether;
 
         vm.startPrank(user1);
-        HotelRooms hotelRooms = new HotelRooms();
+        HotelRooms hotelRooms = new HotelRooms(metadataBaseURI);
         for (uint256 roomId = 1; roomId <= 100; roomId++) {
             hotelRooms.mintRoomDays(
                 roomId,
@@ -107,7 +109,7 @@ contract HotelRoomsTest is Test {
         uint256 pricePerNight = 0.1 ether;
 
         vm.startPrank(user1);
-        HotelRooms hotelRooms = new HotelRooms();
+        HotelRooms hotelRooms = new HotelRooms(metadataBaseURI);
         for (uint256 roomId = 1; roomId <= 10; roomId++) {
             hotelRooms.mintRoomDays(
                 roomId,
@@ -140,7 +142,7 @@ contract HotelRoomsTest is Test {
         uint256 pricePerNight = 0.1 ether;
         vm.startPrank(user1);
 
-        HotelRooms hotelRooms = new HotelRooms();
+        HotelRooms hotelRooms = new HotelRooms(metadataBaseURI);
         hotelRooms.mintRoomDays(
             1,
             startDate,
@@ -163,7 +165,7 @@ contract HotelRoomsTest is Test {
         uint256 endDate = block.timestamp + 2 days;
         uint256 pricePerNight = 0.1 ether;
         vm.startPrank(user1);
-        HotelRooms hotelRooms = new HotelRooms();
+        HotelRooms hotelRooms = new HotelRooms(metadataBaseURI);
         for (uint256 roomId = 1; roomId <= 100; roomId++) {
             hotelRooms.mintRoomDays(
                 roomId,
@@ -190,7 +192,7 @@ contract HotelRoomsTest is Test {
 
         // First mint
         vm.startPrank(user1);
-        HotelRooms hotelRooms = new HotelRooms();
+        HotelRooms hotelRooms = new HotelRooms(metadataBaseURI);
         hotelRooms.mintRoomDays(
             roomId,
             date,
@@ -254,7 +256,7 @@ contract HotelRoomsTest is Test {
         vm.deal(owner, 1000 ether);
         vm.startPrank(owner);
         
-        HotelRooms hotelRooms = new HotelRooms();
+        HotelRooms hotelRooms = new HotelRooms(metadataBaseURI);
         hotelRooms.mintMultipleRoomDays(
             roomIdStart,
             roomIdEnd,
@@ -286,7 +288,7 @@ contract HotelRoomsTest is Test {
         uint256 newPrice = 0.2 ether;
 
         vm.startPrank(user1);
-        HotelRooms hotelRooms = new HotelRooms();
+        HotelRooms hotelRooms = new HotelRooms(metadataBaseURI);
         hotelRooms.mintRoomDays(
             roomId,
             date,

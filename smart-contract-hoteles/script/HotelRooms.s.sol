@@ -7,7 +7,10 @@ import {HotelRooms} from "../src/HotelRooms.sol";
 contract DeployHotelRooms is Script {
     function run() external {
         vm.startBroadcast(); // uses the key passed via --private-key
-        HotelRooms hotel = new HotelRooms();
+
+        string memory metadataBaseURI = "https://davis-knowing-surrounding-buttons.trycloudflare.com/api/metadata/";
+        HotelRooms hotel = new HotelRooms(metadataBaseURI);
+
         console.log("HotelRooms deployed at:", address(hotel));
         vm.stopBroadcast();
     }

@@ -3,6 +3,7 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "./UtilsDate.sol";
 
 contract HotelRooms is ERC721, Ownable {
@@ -59,8 +60,49 @@ contract HotelRooms is ERC721, Ownable {
     // Mapping to track if a room is booked for a specific date
     mapping(uint256 => mapping(uint256 => bool)) private _isBooked;
 
-    constructor() ERC721("HotelRooms", "HROOM") Ownable(msg.sender) {
-      
+    string private baseTokenURI;
+
+    constructor(string memory _baseTokenURI) ERC721("HotelRooms", "HROOM") Ownable(msg.sender) {
+        baseTokenURI = _baseTokenURI;
+    }
+
+    function setBaseTokenURI(string memory uri) external onlyOwner {
+        baseTokenURI = uri;
+    }
+
+    function tokenURI(uint256 tokenId) public view override returns (string memory) {
+        return string(abi.encodePacked(baseTokenURI, Strings.toString(tokenId)));
+    }
+
+    function getTokenURI(uint256 tokenId) external view returns (string memory) {
+        return tokenURI(tokenId);
+    }
+
+    function getRoomData(uint256 tokenId) external view returns (
+        uint256 roomId,
+        uint256 date,
+        uint256 year,
+        uint256 month,
+        uint256 day,
+        RoomType roomType,
+        uint256 pricePerNight,
+        RoomStatus status,
+        address owner
+    ) {
+        RoomDay memory roomDay = _roomDays[tokenId];
+        require(roomDay.roomId != 0, "Room day not found");
+
+        return (
+            roomDay.roomId,
+            roomDay.date,
+            roomDay.year,
+            roomDay.month,
+            roomDay.day,
+            roomDay.roomType,
+            roomDay.pricePerNight,
+            roomDay.status,
+            roomDay.owner
+        );
     }
 
     function _createTokenId(
