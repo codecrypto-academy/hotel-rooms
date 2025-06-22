@@ -23,9 +23,6 @@ import {
 } from "lucide-react"
 import { useWeb3 } from "@/context/Web3Context"
 
-// Mock role - replace with your actual role logic
-const role = "admin" // or "user"
-
 const roomTypes = [
   {
     id: 1,
@@ -145,21 +142,28 @@ export default function Dashboard() {
   return (
     <div className="space-y-8">
       {/* Header Section */}
-      <div className="text-center md:text-left">
-        <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
-          <div className="w-12 h-12 bg-gradient-to-r from-gold to-goldHover rounded-xl flex items-center justify-center shadow-lg">
-            <Hotel className="w-6 h-6 text-white" />
-          </div>
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
-              {isAdmin ? "Admin Dashboard" : "Investment Dashboard"}
-            </h1>
-            <p className="text-slate-600">
-              {isAdmin ? "Manage your blockchain-powered hotel operations" : "Track your hotel token investments"}
-            </p>
-          </div>
-        </div>
-      </div>
+          <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+              <CardContent className="p-6 flex items-center justify-between gap-4 flex-wrap md:flex-nowrap">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 bg-gradient-to-r from-gold to-goldHover rounded-xl flex items-center justify-center shadow-md">
+                    <Hotel className="w-7 h-7 text-white" />
+                  </div>
+                  <div>
+                    <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+                      {isAdmin ? "Admin Dashboard" : "Investment Dashboard"}
+                    </h1>
+                    <p className="text-sm text-slate-600">
+                      {isAdmin
+                        ? "Manage your blockchain-powered hotel operations"
+                        : "Track your hotel token investments"}
+                    </p>
+                  </div>
+                </div>
+                <div className="hidden md:block">
+                  {/* Optional right-side content like stats or a small chart, badge, etc. */}
+                </div>
+              </CardContent>
+            </Card>
 
       {/* Stats Grid */}
       <div className={`grid grid-cols-1 md:grid-cols-2 ${isAdmin ? "lg:grid-cols-4" : "lg:grid-cols-3"} gap-6`}>
@@ -263,12 +267,6 @@ export default function Dashboard() {
       {/* Room Gallery */}
       <div>
         <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-2xl font-bold text-slate-900">Room Categories</h2>
-            <p className="text-slate-600">
-              {isAdmin ? "Manage your hotel room inventory" : "Explore available investment opportunities"}
-            </p>
-          </div>
           <Link href="/dashboard/rooms">
             <Button variant="ghost" className="text-gold hover:text-goldHover group">
               View All

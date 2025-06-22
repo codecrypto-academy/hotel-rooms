@@ -28,11 +28,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     TOKENIZAR
                   </Link>
                 </li>
-                <li>
-                  <Link href="/dashboard/resumen" className="hover:text-gold transition-colors">
-                    RESUMEN
-                  </Link>
-                </li>
+                 <li>
+                   <Link href="/dashboard/rooms" className="hover:text-gold transition-colors">
+                     HABITACIONES
+                   </Link>
+                 </li>
               </>
             )}
 
@@ -44,23 +44,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                      COMPRAR
                    </Link>
                  </li>
-                 <li>
-                   <Link href="/dashboard/rooms" className="hover:text-gold transition-colors">
-                     HABITACIONES
-                   </Link>
-                 </li>
+                <li>
+                  <Link href="/dashboard/resumen" className="hover:text-gold transition-colors">
+                    RESUMEN
+                  </Link>
+                </li>
                  <li>
                    <Link href="/dashboard/buy" className="hover:text-gold transition-colors">
                      MAYORISTA
                    </Link>
                  </li>
+                 <li className="">
+                 <Link href="/dashboard/mistokens" className="hover:text-gold transition-colors">
+                 MIS TOKENS
+                 </Link>
+                 </li>
                </>
             )}
-            <li className="">
-              <Link href="/dashboard/mistokens" className="hover:text-gold transition-colors">
-                MIS TOKENS
-              </Link>
-            </li>
           </ul>
         </div>
       </nav>
