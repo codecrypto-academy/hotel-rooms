@@ -24,3 +24,14 @@ export interface RoomDay {
   tokenId: bigint
   owner: string
 } 
+
+interface Metadata {
+    name?: string
+    description?: string
+    image?: string
+    attributes?: { trait_type?: string; value: string }[]
+}
+
+export interface EnrichedRoomDay extends RoomDay {
+  metadata: Metadata
+}

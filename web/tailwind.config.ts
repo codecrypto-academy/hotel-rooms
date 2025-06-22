@@ -15,6 +15,8 @@ export default {
             gold: "#CDA759",
             goldHover: "#B08D45",
             greenAccent: "#678D58",
+            lightGold: "#FBFBFB",
+            lightGreen: "#8CDCAE",
   			card: {
   				DEFAULT: 'hsl(var(--card))',
   				foreground: 'hsl(var(--card-foreground))'
