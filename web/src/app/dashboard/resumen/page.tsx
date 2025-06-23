@@ -370,7 +370,11 @@ export default function AvailableRoomsPage() {
                       <TableCell>
                         <Button
                           size="sm"
-                          onClick={() => router.push(`/dashboard/comprar?tokenId=${room.tokenId.toString()}`)}
+                          onClick={() =>
+                            router.push(
+                              `/dashboard/comprar?tokenId=${room.tokenId.toString()}&roomType=${room.roomType}&date=${room.year}-${String(room.month).padStart(2, '0')}-${String(room.day).padStart(2, '0')}`
+                            )
+                          }
                           className="bg-green-600 hover:bg-green-700"
                         >
                           Reservar

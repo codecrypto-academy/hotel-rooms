@@ -86,6 +86,12 @@ const statusConfig: Partial<Record<RoomStatus, {
     textColor: "text-gray-700",
     icon: CheckCircle,
   },
+  [RoomStatus.ALL]: {
+    name: "Used",
+    color: "bg-gray-500",
+    textColor: "text-gray-700",
+    icon: CheckCircle,
+  },
 }
 
 // Loading state type
@@ -222,6 +228,7 @@ export default function RoomsPage() {
   const renderStatusBadge = (status: RoomStatus) => {
     const config = statusConfig[status]
     if (!config) {
+        console.log(status);
       return (
         <Badge variant="secondary" className="flex items-center gap-1">
           <AlertTriangle className="w-3 h-3" />
@@ -335,7 +342,7 @@ export default function RoomsPage() {
                     <TableHead>Tipo</TableHead>
                     <TableHead>Precio</TableHead>
                     <TableHead>Estado</TableHead>
-                    <TableHead>Dueño</TableHead>
+                    <TableHead>Due√±o</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -374,3 +381,4 @@ export default function RoomsPage() {
     </div>
   )
 }
+

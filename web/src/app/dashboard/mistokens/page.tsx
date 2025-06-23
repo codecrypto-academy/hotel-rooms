@@ -266,9 +266,9 @@ export default function MisTokens() {
                 room.roomId.toString().includes(searchTerm) ||
                 room.tokenId.toString().includes(searchTerm)
 
-            const matchesStatus = statusFilter === "available" || room.status.toString() === statusFilter
+            const matchesStatus = statusFilter === "all" || room.status.toString() === statusFilter
 
-            const matchesRoomType = roomTypeFilter === "available" || room.roomType.toString() === roomTypeFilter
+            const matchesRoomType = roomTypeFilter === "all" || room.roomType.toString() === roomTypeFilter
 
             return matchesSearch && matchesStatus && matchesRoomType
         })
@@ -573,6 +573,8 @@ export default function MisTokens() {
                                                 <Image
                                                     src={room.metadata.image}
                                                     alt={room.metadata.name || "Room"}
+                                                    width={640} // or any fixed width you want
+                                                    height={160} // proportionate height
                                                     className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                                                     onError={(e) => {
                                                         const img = e.target as HTMLImageElement

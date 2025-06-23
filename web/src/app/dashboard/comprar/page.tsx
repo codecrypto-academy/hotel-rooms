@@ -26,18 +26,30 @@ const roomTypes = [
   { id: "suite", name: "Presidential Suite", price: "0.35", color: "bg-yellow-500" },
 ]
 
+function mapRoomTypeIndexToId(index: string): string {
+  const idx = parseInt(index)
+  if (!isNaN(idx) && idx >= 0 && idx < roomTypes.length) {
+    return roomTypes[idx].id
+  }
+  return ""
+}
+
 function ComprarPageContent() {
     const searchParams = useSearchParams()
     const tokenIdFromUrl = searchParams.get("tokenId") || ""
-
-    const [formData, setFormData] = useState({
-        roomId: tokenIdFromUrl,
-        roomType: "",
-        date: undefined as Date | undefined,
-    })
+    const roomTypeIndexFromUrl = searchParams.get("roomType") || ""
+    const roomTypeIdFromUrl = mapRoomTypeIndexToId(roomTypeIndexFromUrl)
+    const dateFromUrl = searchParams.get("date") || ""
     const [loading, setLoading] = useState(false)
     const { provider, account } = useWeb3()
     const router = useRouter()
+
+    const [formData, setFormData] = useState({
+        roomId: tokenIdFromUrl,
+        roomType: roomTypeIdFromUrl,
+        date: dateFromUrl ? new Date(dateFromUrl) : undefined,
+    })
+
     const selectedRoomType = roomTypes.find(rt => rt.id === formData.roomType)
 
   const handlePurchase = async () => {
@@ -66,11 +78,11 @@ function ComprarPageContent() {
       )
 
       await tx.wait()
-      alert("¬°Habitaci√≥n reservada con √©xito!")
+      alert("Habitación reservada con éxito!")
       setFormData({ roomId: "", roomType: "", date: undefined })
     } catch (err) {
       console.error("Error:", err)
-      alert("Ocurri√≥ un error al procesar la reserva.")
+      alert("Ocurri‚àö‚â• un error al procesar la reserva.")
     } finally {
       setLoading(false)
     }
@@ -88,7 +100,7 @@ function ComprarPageContent() {
             </div>
             <div>
               <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
-                Comprar Habitaci√≥n
+                Comprar Habitación
               </h1>
               <p className="text-sm text-slate-600">
                 Transferencia directa usando el <strong className="text-blue-700">Token ID</strong>
@@ -124,13 +136,13 @@ function ComprarPageContent() {
                 />
                 <p className="text-xs text-slate-500 flex items-center gap-1">
                   <Info className="w-3 h-3" />
-                  El <strong>Token ID exacto</strong> de la habitaci√≥n.
+                  El <strong>Token ID exacto</strong> de la habitación.
                 </p>
               </div>
 
               {/* Room Type */}
               <div className="space-y-1">
-                <Label>Tipo de Habitaci√≥n</Label>
+                <Label>Tipo de Habitación</Label>
                 <Select
                   value={formData.roomType}
                   onValueChange={(value) => setFormData({ ...formData, roomType: value })}
@@ -174,7 +186,7 @@ function ComprarPageContent() {
               </div>
             </div>
 
-            {/* Estimaci√≥n de Precio */}
+            {/* Estimaci‚àö‚â•n de Precio */}
             {selectedRoomType && (
               <div className="flex items-center justify-between px-4 py-3 rounded-md border bg-blue-50">
                 <div>

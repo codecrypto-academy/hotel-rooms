@@ -1,39 +1,38 @@
-# Build stage
+# ---- Build Stage ----
 FROM oven/bun:1-alpine AS builder
 
 WORKDIR /app
 
+# Install dependencies
 COPY package.json bun.lockb* ./
 RUN bun install --frozen-lockfile
+
+# Copy source files
 COPY . .
-RUN bunx next telemetry disable
-RUN bun run build
 
-# Runtime stage - use minimal alpine image
+# Disable telemetry
+# RUN bunx next telemetry disable
+# 
+# # Build the Next.js app
+# RUN bun run build
+
+# ---- Runtime Stage ----
 FROM oven/bun:1-alpine AS runner
-
-# Create non-root user for security
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
 
 WORKDIR /app
 
-# Copy built application from builder stage
-COPY --from=builder --chown=nextjs:nodejs /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# Copy production artifacts from builder
+# COPY --from=builder /app/.next ./.next
+# COPY --from=builder /app/public ./public
+# COPY --from=builder /app/package.json ./package.json
+# COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app .
 
 # Set environment variables
 ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
 
-# Switch to non-root user
-USER nextjs
-
-# Expose port
 EXPOSE 3000
 
-# Start the application using bun (faster startup)
-CMD ["bun", "run", "server.js"]
+# Start Next.js app using "next start"
+CMD ["bun", "run", "dev"]

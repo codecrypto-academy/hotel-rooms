@@ -569,15 +569,18 @@ export default function WholesaleBuyPage() {
                         <CardContent className="p-4 space-y-4">
                           {/* Image from metadata */}
                           {room.metadata?.image && (
-                            <Image
-                              src={room.metadata.image}
-                              alt={room.metadata.name ?? `Room ${room.roomId.toString()}`}
-                              className="w-full h-40 object-cover rounded-md shadow-sm"
-                              onError={(e) => {
-                                const img = e.target as HTMLImageElement
-                                img.style.display = 'none'
-                              }}
-                            />
+                              <Image
+                                  src={room.metadata.image}
+                                  alt={room.metadata.name ?? `Room ${room.roomId.toString()}`}
+                                  width={640} // or any fixed width you want
+                                  height={160} // proportionate height
+                                  className="w-full h-40 object-cover rounded-md shadow-sm"
+                                  unoptimized // ← important for external URLs
+                                  onError={(e) => {
+                                    const img = e.target as HTMLImageElement
+                                    img.style.display = 'none'
+                                  }}
+                                />
                           )}
 
                           <div className="flex items-start justify-between">
