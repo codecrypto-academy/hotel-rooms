@@ -32,7 +32,21 @@ import {
 } from "lucide-react";
 import { useWeb3 } from "@/context/Web3Context";
 import { getContractABI, getContractAddress } from "@/lib/contract";
-import { RoomStatus, RoomType, RoomDay, EnrichedRoomDay } from "@/lib/types";
+import { RoomStatus, RoomType, RoomDay, EnrichedRoomDay, Metadata } from "@/lib/types";
+import Image from "next/image"
+ 
+interface RawRoom {
+  roomId: string | number | bigint
+  date: string | number | bigint
+  year: number
+  month: number
+  day: number
+  roomType: number
+  pricePerNight: string | number | bigint
+  status: number
+  tokenId: string | number | bigint
+  owner: string
+}
 
 const roomTypes = [
   { id: RoomType.STANDARD, name: "Standard Room", basePrice: 0.08, expectedReturn: 15 },
@@ -61,7 +75,7 @@ export default function WholesaleBuyPage() {
 
   const { account, provider } = useWeb3()
 
-  const parseRoomDay = (rawRoom: any): RoomDay | null => {
+  const parseRoomDay = (rawRoom: RawRoom): RoomDay | null => {
     try {
       return {
         roomId: BigInt(rawRoom.roomId?.toString() || "0"),
@@ -87,7 +101,7 @@ export default function WholesaleBuyPage() {
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`)
       }
-      const metadata = await response.json()
+      const metadata: Metadata = await response.json()
       return metadata
     } catch (error) {
       console.warn(`Metadata fetch failed for tokenId: ${tokenId.toString()}`, error)
@@ -112,13 +126,13 @@ export default function WholesaleBuyPage() {
       setError("")
       setSearchPerformed(true)
 
-      const signer = await provider.getSigner()
+      // const signer = await provider.getSigner()
       const contractAddress = await getContractAddress()
       const abi = await getContractABI()
       const contract = new ethers.Contract(contractAddress, abi, provider)
 
       // Fetch all room days from contract
-      const allRooms: any[] = await contract.getAllRoomDays(0, 100)
+      const allRooms: RawRoom[] = await contract.getAllRoomDays(0, 100)
 
       const startTimestamp = Math.floor(startDate.getTime() / 1000)
       const endTimestamp = Math.floor(endDate.getTime() / 1000)
@@ -159,7 +173,7 @@ export default function WholesaleBuyPage() {
       const enrichedRooms: EnrichedRoomDay[] = await Promise.all(
         filteredRooms.map(async (room): Promise<EnrichedRoomDay> => {
           const metadata = await fetchMetadata(room.tokenId)
-          return { ...room, metadata }
+          return { ...room, metadata: metadata ?? undefined }
         })
       )
 
@@ -539,7 +553,7 @@ export default function WholesaleBuyPage() {
             ) : (
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {rooms.map((room, i) => {
+                  {rooms.map((room) => {
                     const isSelected = selectedRooms.has(room.tokenId.toString())
                     const roomTypeName = getRoomTypeName(room.roomType)
                     const roomTypeInfo = roomTypes.find((rt) => rt.name === roomTypeName)
@@ -555,7 +569,7 @@ export default function WholesaleBuyPage() {
                         <CardContent className="p-4 space-y-4">
                           {/* Image from metadata */}
                           {room.metadata?.image && (
-                            <img
+                            <Image
                               src={room.metadata.image}
                               alt={room.metadata.name ?? `Room ${room.roomId.toString()}`}
                               className="w-full h-40 object-cover rounded-md shadow-sm"
@@ -568,7 +582,7 @@ export default function WholesaleBuyPage() {
 
                           <div className="flex items-start justify-between">
                             <div className="flex items-center gap-2">
-                              <Checkbox checked={isSelected} readOnly />
+                              <Checkbox checked={isSelected}/>
                               <div>
                                 <h4 className="font-semibold text-slate-900">
                                   {room.metadata?.name || `Room ${room.roomId.toString()}`}

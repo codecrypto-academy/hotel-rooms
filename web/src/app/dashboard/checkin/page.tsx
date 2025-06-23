@@ -24,7 +24,7 @@ export default function CheckinPage() {
       const tx = await contract?.setToUsed(tokenId);
       await tx?.wait();
       setTokenId("");
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
     } finally {
       setIsLoading(false);

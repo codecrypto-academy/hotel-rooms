@@ -33,5 +33,5 @@ export interface Metadata {
 }
 
 export interface EnrichedRoomDay extends RoomDay {
-  metadata: Metadata
+  metadata?: Metadata
 }

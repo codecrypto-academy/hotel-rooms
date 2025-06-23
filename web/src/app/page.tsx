@@ -241,9 +241,9 @@ export default function Home() {
               <Leaf className="w-12 h-12 text-gold mx-auto mb-4" />
             </div>
             <blockquote className="text-3xl md:text-5xl font-light text-white leading-relaxed italic mb-8">
-              "You can check out any time you like,
+              &quot;You can check out any time you like,
               <br />
-              <span className="text-gold">but you can never leave"</span>
+              <span className="text-gold">but you can never leave</span>&quot;
             </blockquote>
             <div className="flex items-center justify-center gap-2 text-white/60">
               <div className="w-12 h-px bg-gold" />

@@ -1,13 +1,14 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { ethers } from 'ethers';
 import { useRouter } from 'next/navigation';
+import type { MetaMaskInpageProvider } from '@metamask/providers';
 
 declare global {
-    interface Window {
-        ethereum: any;
-    }
+  interface Window {
+    ethereum?: MetaMaskInpageProvider;
+  }
 }
 
 type Role = 'admin' | 'client';
@@ -34,9 +35,9 @@ export function Web3Provider({ children }: { children: ReactNode }) {
     const router = useRouter();
 
     const connect = async () => {
-        if (typeof window.ethereum !== 'undefined') {
+        if (window.ethereum) {
             try {
-                const provider = new ethers.BrowserProvider(window.ethereum as any);
+                const provider = new ethers.BrowserProvider(window.ethereum);
                 const accounts = await provider.send('eth_requestAccounts', []);
                 const connectedAccount = accounts[0];
                 setAccount(connectedAccount);
@@ -52,17 +53,17 @@ export function Web3Provider({ children }: { children: ReactNode }) {
         }
     };
 
-    const disconnect = () => {
+    const disconnect = useCallback(() => {
         setAccount(null);
         setProvider(null);
         setRole('client');
         router.push('/')
-    };
+    }, [router]);
 
     useEffect(() => {
         const savedAccount = localStorage.getItem('web3Account');
         if (savedAccount && window.ethereum) {
-            const provider = new ethers.BrowserProvider(window.ethereum as any);
+            const provider = new ethers.BrowserProvider(window.ethereum);
             setProvider(provider);
             setAccount(savedAccount);
             const normalized = savedAccount.toLowerCase();
@@ -79,16 +80,24 @@ export function Web3Provider({ children }: { children: ReactNode }) {
     }, [account]);
 
     useEffect(() => {
-        if (window.ethereum) {
-            window.ethereum.on('accountsChanged', (accounts: string[]) => {
-                const newAccount = accounts[0] || null;
-                setAccount(newAccount);
-                const normalized = newAccount?.toLowerCase();
-                setRole(normalized === ADMIN_ADDRESS ? 'admin' : 'client');
-                disconnect()
-            });
-        }
-    }, []);
+          if (!window.ethereum) return;
+        
+          const handleAccountsChanged = (...args: unknown[]) => {
+            if (!Array.isArray(args[0])) return;
+            const accounts = args[0] as string[] | undefined;
+            const newAccount = accounts?.[0] || null;
+            setAccount(newAccount);
+            const normalized = newAccount?.toLowerCase();
+            setRole(normalized === ADMIN_ADDRESS ? 'admin' : 'client');
+            disconnect();
+          };
+        
+          window.ethereum.on('accountsChanged', handleAccountsChanged);
+        
+          return () => {
+            window.ethereum?.removeListener('accountsChanged', handleAccountsChanged);
+          };
+    }, [disconnect]);
 
     return (
         <Web3Context.Provider value={{ account, provider, connect, disconnect, isConnected: !!account, role }}>

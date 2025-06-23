@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo, useEffect, useCallback } from "react"
 import { ethers } from "ethers"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -40,6 +40,19 @@ import { getContractABI, getContractAddress } from "@/lib/contract"
 import { RoomStatus, RoomType, RoomDay, EnrichedRoomDay, Metadata } from "@/lib/types"
 import Image from 'next/image'
 
+interface RawRoom {
+  roomId: string | number | bigint
+  date: string | number | bigint
+  year: number
+  month: number
+  day: number
+  roomType: number
+  pricePerNight: string | number | bigint
+  status: number
+  tokenId: string | number | bigint
+  owner: string
+}
+
 const roomTypes = [
     { id: RoomType.STANDARD, name: "Standard Room", basePrice: 0.08, expectedReturn: 15 },
     { id: RoomType.DELUXE, name: "Deluxe Suite", basePrice: 0.15, expectedReturn: 18 },
@@ -54,6 +67,13 @@ const roomTypeNames: Record<RoomType, string> = {
 }
 
 const roomTypeConfig = {
+    [RoomType.ALL]: {
+        name: "Standard",
+        color: "bg-blue-500",
+        lightColor: "bg-blue-50",
+        textColor: "text-blue-700",
+        icon: Building,
+    },
     [RoomType.STANDARD]: {
         name: "Standard",
         color: "bg-blue-500",
@@ -78,6 +98,13 @@ const roomTypeConfig = {
 }
 
 const statusConfig = {
+    [RoomStatus.ALL]: {
+        name: "Available",
+        color: "bg-green-500",
+        textColor: "text-green-700",
+        bgColor: "bg-green-50",
+        icon: CheckCircle,
+    },
     [RoomStatus.AVAILABLE]: {
         name: "Available",
         color: "bg-green-500",
@@ -112,7 +139,7 @@ export default function MisTokens() {
 
     const { account, provider } = useWeb3()
 
-    const parseRoomDay = (rawRoom: any): RoomDay | null => {
+    const parseRoomDay = (rawRoom: RawRoom): RoomDay | null => {
         try {
             return {
                 roomId: BigInt(rawRoom.roomId?.toString() || "0"),
@@ -146,7 +173,7 @@ export default function MisTokens() {
         }
     }
 
-    const fetchUserTokens = async () => {
+    const fetchUserTokens = useCallback(async () => {
         if (!provider || !account) {
             setError("Web3 provider or account not available")
             return
@@ -161,7 +188,7 @@ export default function MisTokens() {
             const contract = new ethers.Contract(contractAddress, abi, provider)
 
             // Fetch all room days and filter by owner
-            const allRooms: any[] = await contract.getAllRoomDays(0, 1000)
+            const allRooms: RawRoom[] = await contract.getAllRoomDays(0, 1000)
 
             // Parse and filter rooms owned by current account
             const parsedRooms = allRooms
@@ -173,7 +200,7 @@ export default function MisTokens() {
             const enrichedRooms: EnrichedRoomDay[] = await Promise.all(
                 parsedRooms.map(async (room): Promise<EnrichedRoomDay> => {
                     const metadata = await fetchMetadata(room.tokenId)
-                    return { ...room, metadata }
+                    return { ...room, metadata: metadata ?? undefined }
                 })
             )
 
@@ -186,14 +213,14 @@ export default function MisTokens() {
         } finally {
             setLoading(false)
         }
-    }
+    }, [provider, account])
 
     // Load user tokens on component mount and when account changes
     useEffect(() => {
         if (account && provider) {
             fetchUserTokens()
         }
-    }, [account, provider])
+    }, [account, provider, fetchUserTokens])
 
     // Portfolio statistics
     const portfolioStats = useMemo(() => {
@@ -239,9 +266,9 @@ export default function MisTokens() {
                 room.roomId.toString().includes(searchTerm) ||
                 room.tokenId.toString().includes(searchTerm)
 
-            const matchesStatus = statusFilter === "all" || room.status.toString() === statusFilter
+            const matchesStatus = statusFilter === "available" || room.status.toString() === statusFilter
 
-            const matchesRoomType = roomTypeFilter === "all" || room.roomType.toString() === roomTypeFilter
+            const matchesRoomType = roomTypeFilter === "available" || room.roomType.toString() === roomTypeFilter
 
             return matchesSearch && matchesStatus && matchesRoomType
         })
@@ -543,7 +570,7 @@ export default function MisTokens() {
                                     >
                                         <div className="relative">
                                             {room.metadata?.image ? (
-                                                <img
+                                                <Image
                                                     src={room.metadata.image}
                                                     alt={room.metadata.name || "Room"}
                                                     className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"

@@ -66,13 +66,26 @@ interface LoadingState {
   error: string | null
 }
 
+interface RawRoom {
+  roomId: string | number | bigint
+  date: string | number | bigint
+  year: number
+  month: number
+  day: number
+  roomType: number
+  pricePerNight: string | number | bigint
+  status: number
+  tokenId: string | number | bigint
+  owner: string
+}
+
 export default function AvailableRoomsPage() {
   const [roomDays, setRoomDays] = useState<RoomDay[]>([])
   const [loadingState, setLoadingState] = useState<LoadingState>({
     isLoading: true,
     error: null
   })
-  const { provider, account } = useWeb3()
+  const { provider } = useWeb3()
   const router = useRouter()
 
   // Helper to get room type configuration
@@ -97,7 +110,7 @@ export default function AvailableRoomsPage() {
   }, [])
 
   // Parse contract room data
-  const parseContractRoomDay = useCallback((room: any): RoomDay => {
+  const parseContractRoomDay = useCallback((room: RawRoom): RoomDay => {
     try {
       return {
         tokenId: BigInt(room.tokenId),

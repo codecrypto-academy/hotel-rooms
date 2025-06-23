@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, Suspense } from "react"
 import { useWeb3 } from "@/context/Web3Context"
 import { ethers } from "ethers"
 import { getContractABI, getContractAddress } from "@/lib/contract"
@@ -26,7 +26,7 @@ const roomTypes = [
   { id: "suite", name: "Presidential Suite", price: "0.35", color: "bg-yellow-500" },
 ]
 
-export default function ComprarPage() {
+function ComprarPageContent() {
     const searchParams = useSearchParams()
     const tokenIdFromUrl = searchParams.get("tokenId") || ""
 
@@ -66,11 +66,11 @@ export default function ComprarPage() {
       )
 
       await tx.wait()
-      alert("¡Habitación reservada con éxito!")
+      alert("¬°Habitaci√≥n reservada con √©xito!")
       setFormData({ roomId: "", roomType: "", date: undefined })
     } catch (err) {
       console.error("Error:", err)
-      alert("Ocurrió un error al procesar la reserva.")
+      alert("Ocurri√≥ un error al procesar la reserva.")
     } finally {
       setLoading(false)
     }
@@ -88,7 +88,7 @@ export default function ComprarPage() {
             </div>
             <div>
               <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
-                Comprar Habitación
+                Comprar Habitaci√≥n
               </h1>
               <p className="text-sm text-slate-600">
                 Transferencia directa usando el <strong className="text-blue-700">Token ID</strong>
@@ -124,13 +124,13 @@ export default function ComprarPage() {
                 />
                 <p className="text-xs text-slate-500 flex items-center gap-1">
                   <Info className="w-3 h-3" />
-                  El <strong>Token ID exacto</strong> de la habitación.
+                  El <strong>Token ID exacto</strong> de la habitaci√≥n.
                 </p>
               </div>
 
               {/* Room Type */}
               <div className="space-y-1">
-                <Label>Tipo de Habitación</Label>
+                <Label>Tipo de Habitaci√≥n</Label>
                 <Select
                   value={formData.roomType}
                   onValueChange={(value) => setFormData({ ...formData, roomType: value })}
@@ -174,7 +174,7 @@ export default function ComprarPage() {
               </div>
             </div>
 
-            {/* Estimación de Precio */}
+            {/* Estimaci√≥n de Precio */}
             {selectedRoomType && (
               <div className="flex items-center justify-between px-4 py-3 rounded-md border bg-blue-50">
                 <div>
@@ -209,5 +209,13 @@ export default function ComprarPage() {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+export default function ComprarPage() {
+  return (
+    <Suspense fallback={<div className="max-w-4xl mx-auto py-10 text-center">Cargando...</div>}>
+      <ComprarPageContent />
+    </Suspense>
   )
 }
