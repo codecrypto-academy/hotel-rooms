@@ -1,0 +1,17 @@
+services:
+  codecrypto.hotel-room:
+    container_name: hotel-room.codecrypto
+    build: .
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.hotel-room.rule=Host(`hotel-room.codecrypto.academy`)"
+      - "traefik.http.routers.hotel-room.entrypoints=websecure"
+      - "traefik.http.routers.hotel-room.tls.certresolver=le"
+      - "traefik.http.services.hotel-room.loadbalancer.server.port=3000"
+    networks:
+      - academy-network
+    restart: unless-stopped
+
+networks:
+  academy-network:
+    external: true
