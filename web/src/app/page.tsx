@@ -20,10 +20,22 @@ import {
 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
+import { useWeb3 } from "@/context/Web3Context"
+import { useRouter } from "next/navigation"
 
 export default function Home() {
   const [scrollY, setScrollY] = useState(0)
   const [isVisible, setIsVisible] = useState(false)
+  const { connect, account } = useWeb3()
+
+  const router = useRouter()
+
+  const handleClick = async () => {
+      if (!account) {
+          await connect()
+      }
+      router.push("/dashboard")
+  }
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY)
@@ -133,16 +145,16 @@ export default function Home() {
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
-            <Link href="/dashboard">
               <Button
                 size="lg"
                 variant="outline"
                 className="bg-white/90 border-white/30 text-black hover:bg-white/10 backdrop-blur-sm px-8 py-4 text-lg"
+                onClick={handleClick}
               >
                 <Wallet className="mr-2 w-5 h-5" />
-                Conectar Wallet
+               {account ? "Dashboard" : "Conectar Wallet"}
+
               </Button>
-            </Link>
           </div>
 
           {/* Stats */}

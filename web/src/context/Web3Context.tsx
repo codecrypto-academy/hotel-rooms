@@ -86,10 +86,15 @@ export function Web3Provider({ children }: { children: ReactNode }) {
             if (!Array.isArray(args[0])) return;
             const accounts = args[0] as string[] | undefined;
             const newAccount = accounts?.[0] || null;
-            setAccount(newAccount);
-            const normalized = newAccount?.toLowerCase();
-            setRole(normalized === ADMIN_ADDRESS ? 'admin' : 'client');
-            disconnect();
+
+            if (!newAccount || newAccount.toLowerCase() !== account?.toLowerCase()) {
+                console.log('Redirecting home...', newAccount);
+                disconnect(); // this already resets account, provider, role, and redirects
+            } else {
+                // If same account (e.g., MetaMask reconnects), still ensure role is updated
+                const normalized = newAccount.toLowerCase();
+                setRole(normalized === ADMIN_ADDRESS ? 'admin' : 'client');
+            }
           };
         
           window.ethereum.on('accountsChanged', handleAccountsChanged);

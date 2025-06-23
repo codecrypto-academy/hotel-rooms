@@ -4,7 +4,7 @@ FROM oven/bun:1-alpine AS builder
 WORKDIR /app
 
 COPY package.json bun.lockb* ./
-RUN bun install --frozen-lockfile --production=false
+RUN bun install --frozen-lockfile
 COPY . .
 RUN bunx next telemetry disable
 RUN bun run build

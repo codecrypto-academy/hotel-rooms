@@ -7,10 +7,6 @@ const nextConfig: NextConfig = {
     experimental: {
         // Add any experimental features you need
     },
-
-    // Optimize for production
-    swcMinify: true,
-
     // Add other optimizations
     compress: true,
     poweredByHeader: false,

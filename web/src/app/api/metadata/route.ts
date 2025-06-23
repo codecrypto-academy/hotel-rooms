@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 
-const BASE_METADATA_URI = "https://craig-communications-artists-then.trycloudflare.com/api/metadata"
+const BASE_METADATA_URI = "https://server.codecrypto.academy/api/metadata"
 
     export async function GET(req: NextRequest) {
     const tokenId = req.nextUrl.searchParams.get("tokenId")
