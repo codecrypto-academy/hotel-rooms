@@ -54,8 +54,8 @@ const roomTypes = [
     price: "0.35",
     available: 3,
     rating: 5.0,
-    features: ["Panoramic View", "Private Terrace", "Butler Service", "Wine Cellar"],
-    totalRooms: 10,
+    features: ["Panoramic View", "Private Terrace", "Butler Service"],
+    totalRooms: 10
   },
 ]
 
@@ -191,7 +191,7 @@ export default function Dashboard() {
       </div>
 
       {/* Quick Actions */}
-      <Card className="border-0 shadow-lg bg-gradient-to-r from-gold/5 to-goldHover/5">
+      <Card className="text-center backdrop-blur-sm bg-white/5 rounded-2xl p-4 border border-white/10">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Zap className="w-5 h-5 text-gold" />
@@ -208,7 +208,7 @@ export default function Dashboard() {
                 <Button className="w-full h-16 bg-gradient-to-r from-gold to-goldHover hover:from-goldHover hover:to-gold text-white font-medium">
                   <div className="flex flex-col items-center gap-1">
                     <Plus className="w-5 h-5" />
-                    <span>Mint Tokens</span>
+                    <span>Tokenizar Habitaciones</span>
                   </div>
                 </Button>
               </Link>
@@ -337,12 +337,6 @@ export default function Dashboard() {
                     <span className="text-2xl font-bold text-slate-900">{room.price}</span>
                     <span className="text-sm text-slate-600">ETH/token</span>
                   </div>
-                  <Button
-                    size="sm"
-                    className="bg-gold hover:bg-goldHover text-white shadow-lg hover:shadow-xl transition-all duration-200"
-                  >
-                    {isAdmin ? "Manage" : "Invest"}
-                  </Button>
                 </div>
               </CardContent>
             </Card>

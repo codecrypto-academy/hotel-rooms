@@ -18,7 +18,9 @@ export default function RootLayout({
     <Web3Provider>
     <html lang="en">
       <body className="min-h-screen bg-white text-gray-800">
-        <Header /> {/* Main brand + wallet connect */}
+        {/*
+          <Header /> 
+        */}
         {children}
       </body>
     </html>

@@ -295,28 +295,38 @@ export default function WholesaleBuyPage() {
   }
 
   return (
-    <div className="space-y-8 p-6 max-w-7xl mx-auto">
+    <div className="container space-y-8 py-6 p-6 mx-auto">
       {/* Header */}
-      <div className="text-center md:text-left">
-        <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
-          <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
-            <Package className="w-6 h-6 text-white" />
-          </div>
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
-              Wholesale Investment
-            </h1>
-            <p className="text-slate-600">Bulk purchase hotel room tokens for maximum returns</p>
-          </div>
-        </div>
-        {/* Connection Status */}
-        <div className="flex items-center justify-center md:justify-start gap-2 mt-2">
-          <div className={`w-2 h-2 rounded-full ${account ? 'bg-green-500' : 'bg-red-500'}`} />
-          <span className="text-sm text-slate-600">
-            {account ? `Connected: ${account.slice(0, 6)}...${account.slice(-4)}` : 'Not connected to wallet'}
-          </span>
-        </div>
+      <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+  <CardContent className="p-6 flex flex-col gap-4">
+    {/* Header Row */}
+    <div className="flex items-center justify-start gap-4">
+      <div className="w-14 h-14 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-md">
+        <Package className="w-7 h-7 text-white" />
       </div>
+      <div>
+        <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+          Wholesale Investment
+        </h1>
+        <p className="text-sm text-slate-600">
+          Bulk purchase hotel room tokens for maximum returns
+        </p>
+      </div>
+    </div>
+
+    {/* Connection Status */}
+            {/* 
+    <div className="flex items-center gap-2">
+      <div className={`w-2 h-2 rounded-full ${account ? 'bg-green-500' : 'bg-red-500'}`} />
+      <span className="text-sm text-slate-600">
+        {account
+          ? `Connected: ${account.slice(0, 6)}...${account.slice(-4)}`
+          : 'Not connected to wallet'}
+      </span>
+    </div>
+            */}
+  </CardContent>
+</Card>
 
       {/* Error Display */}
       {error && (
@@ -650,7 +660,7 @@ export default function WholesaleBuyPage() {
       )}
 
       {/* Investment Tips */}
-      <Card className="border-0 shadow-lg bg-gradient-to-r from-blue-50 to-indigo-50">
+      <Card className="text-center backdrop-blur-sm bg-white/5 rounded-2xl p-4 border border-white/10">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-blue-600" />

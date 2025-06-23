@@ -25,7 +25,7 @@ export interface RoomDay {
   owner: string
 } 
 
-interface Metadata {
+export interface Metadata {
     name?: string
     description?: string
     image?: string

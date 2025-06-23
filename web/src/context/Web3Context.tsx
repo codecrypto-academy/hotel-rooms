@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { ethers } from 'ethers';
+import { useRouter } from 'next/navigation';
 
 declare global {
     interface Window {
@@ -15,6 +16,7 @@ interface Web3ContextType {
     account: string | null;
     provider: ethers.BrowserProvider | null;
     connect: () => Promise<void>;
+    disconnect: () => void;
     isConnected: boolean;
     role: Role;
 }
@@ -22,12 +24,14 @@ interface Web3ContextType {
 const Web3Context = createContext<Web3ContextType | null>(null);
 
 // Replace this with your actual admin address (can be loaded from env or contract later)
+// This is first anvil account
 const ADMIN_ADDRESS = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266".toLowerCase();
 
 export function Web3Provider({ children }: { children: ReactNode }) {
     const [account, setAccount] = useState<string | null>(null);
     const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null);
     const [role, setRole] = useState<Role>('client');
+    const router = useRouter();
 
     const connect = async () => {
         if (typeof window.ethereum !== 'undefined') {
@@ -52,6 +56,7 @@ export function Web3Provider({ children }: { children: ReactNode }) {
         setAccount(null);
         setProvider(null);
         setRole('client');
+        router.push('/')
     };
 
     useEffect(() => {
@@ -80,12 +85,13 @@ export function Web3Provider({ children }: { children: ReactNode }) {
                 setAccount(newAccount);
                 const normalized = newAccount?.toLowerCase();
                 setRole(normalized === ADMIN_ADDRESS ? 'admin' : 'client');
+                disconnect()
             });
         }
     }, []);
 
     return (
-        <Web3Context.Provider value={{ account, provider, connect, isConnected: !!account, role }}>
+        <Web3Context.Provider value={{ account, provider, connect, disconnect, isConnected: !!account, role }}>
         {children}
         </Web3Context.Provider>
     );

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useWeb3 } from "@/context/Web3Context";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { Header } from "@/components/Header";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { isConnected, role } = useWeb3();
@@ -16,7 +17,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="min-h-screen flex flex-col bg-[url('/images/pattern.svg')] bg-repeat">
-      <nav className="bg-white border-b border-gray-100 shadow-sm">
+          <Header /> 
+      <nav className="bg-white border-b border-gray-100 shadow-sm mt-6">
         <div className="container mx-auto px-6 py-3">
           <ul className="flex space-x-6 text-gray-600">
 

@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Loader2 } from "lucide-react"
 import { getContractABI, getContractAddress } from '@/lib/contract'
 import { ethers } from 'ethers'
 import { useWeb3 } from '@/context/Web3Context'
@@ -33,6 +32,7 @@ import {
   CheckCircle,
   AlertTriangle,
 } from "lucide-react"
+import Image from 'next/image'
 
 // Type-safe room type configuration
 const roomTypeConfig: Partial<Record<RoomStatus, {
@@ -268,9 +268,17 @@ export default function RoomsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="w-8 h-8 animate-spin mr-2" />
-              <span>Cargando habitaciones...</span>
+            <div className="flex items-center justify-center py-12">
+             <div className="text-center space-y-4">
+              <Image
+                src="/images/logo.png"
+                alt="Hotel California Logo"
+                width={48}
+                height={48}
+                className="mx-auto animate-spin slow-spin"
+              />
+              <span>Cargando habitaciones disponibles...</span>
+             </div>
             </div>
           </CardContent>
         </Card>
